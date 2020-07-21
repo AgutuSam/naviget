@@ -18,7 +18,7 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
               child: Column(
                 children: <Widget>[
                   Container(
-                    height: 90,
+                    height: 80,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                         boxShadow: [
@@ -46,7 +46,7 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
                     'Anonym@naviget.com',
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
-                  SizedBox(height: 10.0),
+                  SizedBox(height: 5.0),
                 ],
               ),
             ),
@@ -55,7 +55,7 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
                 image: DecorationImage(
                     image: AssetImage('assets/atlas.jpg'), fit: BoxFit.cover)),
           ),
-          SizedBox(height: 30.0),
+          SizedBox(height: 10.0),
           _buildRow(Icons.home, 'Home', context, MyApp()),
           _buildDivider(),
           _buildRow(Icons.account_circle, 'Profile', context, MyApp()),
