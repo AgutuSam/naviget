@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "662907770584",
+    "firebase_url": "https://naviget-18137.firebaseio.com",
+    "project_id": "naviget-18137",
+    "storage_bucket": "naviget-18137.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:662907770584:android:d7160aa418cd11aabbe9ad",
+        "android_client_info": {
+          "package_name": "com.example.naviget"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "662907770584-kqha8ict1929hnebkft7dhdm4ngd49m4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.naviget",
+            "certificate_hash": "cb4a253446e3f090d4f3369c12b64c72a4f4e415"
+          }
+        },
+        {
+          "client_id": "662907770584-1rb7gornn6tfooh7nvepa60i9jhgoaqs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhpdiwaCYeFqQxE_SvDiVV-XPVqffBaiw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "662907770584-1rb7gornn6tfooh7nvepa60i9jhgoaqs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

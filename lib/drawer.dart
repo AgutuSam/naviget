@@ -1,12 +1,51 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:naviget/auth/auth.dart';
+import 'package:naviget/auth/signin.dart';
 import 'package:naviget/main.dart';
+import 'package:toast/toast.dart';
 
 class PrimeDrawer extends StatefulWidget {
+  PrimeDrawer({this.auth, this.onSignedOut});
+  final BaseAuth auth;
+  final VoidCallback onSignedOut;
   @override
   State<StatefulWidget> createState() => _PrimeDrawerState();
 }
 
 class _PrimeDrawerState extends State<PrimeDrawer> {
+  FirebaseUser auser;
+
+  user() async {
+    final FirebaseUser thisuser = await widget.auth.currentUser();
+    setState(() {
+      auser = thisuser;
+    });
+  }
+
+  @override
+  void initState() {
+    user();
+    super.initState();
+  }
+
+  void _signOut() async {
+    try {
+      await widget.auth.signOutFireBaseAuth();
+      await widget.auth
+          .signOutGoogle()
+          .whenComplete(() async => await widget.auth.signOutFireBaseAuth());
+      await widget.auth
+          .signOutFacebook()
+          .whenComplete(() async => await widget.auth.signOutFireBaseAuth());
+      widget.onSignedOut();
+    } catch (e) {
+      Toast.show(e.toString(), context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -66,12 +105,12 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
           _buildDivider(),
           _buildRow(Icons.help_outline, 'Help', context, MyApp()),
           _buildDivider(),
-          _buildRow(Icons.info_outline, 'Info', context, MyApp()),
+          _buildRow(Icons.info_outline, 'Info', context, SignIn()),
           _buildDivider(),
           Container(
             padding: const EdgeInsets.symmetric(vertical: .2),
             child: FlatButton(
-              onPressed: () {},
+              onPressed: () => _signOut(),
               child: Row(children: [
                 Icon(
                   Icons.power_settings_new,

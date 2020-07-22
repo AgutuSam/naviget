@@ -15,4 +15,7 @@
     <style name="NormalTheme" parent="@android:style/Theme.Black.NoTitleBar">
         <item name="android:windowBackground">@android:color/white</item>
     </style>
+    <string name="app_name">naviget</string>
+    <string name="facebook_app_id">708039216712932</string>
+    <string name="fb_login_protocol_scheme">fb708039216712932</string>
 </resources>

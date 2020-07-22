@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:naviget/mapView.dart';
+import 'package:naviget/auth/auth.dart';
+import 'package:naviget/auth/route.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +14,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      home: MapView(),
+      home: RoutePage(auth: Auth()),
     );
   }
 }

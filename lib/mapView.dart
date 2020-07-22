@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:naviget/auth/auth.dart';
 import 'package:naviget/drawer.dart';
-import 'package:naviget/main.dart';
 import 'package:naviget/secrets.dart'; // Stores the Google Maps API Key
 
 import 'dart:math' show cos, sqrt, asin;
 
 class MapView extends StatefulWidget {
+  MapView({this.auth, this.onSignedOut});
+  final BaseAuth auth;
+  final VoidCallback onSignedOut;
   @override
   _MapViewState createState() => _MapViewState();
 }
@@ -288,6 +291,14 @@ class _MapViewState extends State<MapView> {
     polylines[id] = polyline;
   }
 
+  void _signedOut() {
+    try {
+      widget.onSignedOut();
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   void initState() {
     extrasVisible = false;
@@ -322,7 +333,7 @@ class _MapViewState extends State<MapView> {
           ],
           iconTheme: new IconThemeData(color: Colors.white),
         ),
-        drawer: PrimeDrawer(),
+        drawer: PrimeDrawer(auth: widget.auth, onSignedOut: _signedOut),
         body: Stack(
           children: <Widget>[
             // Map View
