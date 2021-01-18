@@ -11,7 +11,7 @@
          
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="naviget"
+        android:label="SSUC Navigation"
         android:icon="@mipmap/ic_launcher">
 
         <!-- maps API key start -->

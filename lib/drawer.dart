@@ -32,12 +32,6 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
   void _signOut() async {
     try {
       await widget.auth.signOutFireBaseAuth();
-      await widget.auth
-          .signOutGoogle()
-          .whenComplete(() async => await widget.auth.signOutFireBaseAuth());
-      await widget.auth
-          .signOutFacebook()
-          .whenComplete(() async => await widget.auth.signOutFireBaseAuth());
       widget.onSignedOut();
     } catch (e) {
       Toast.show(e.toString(), context,
@@ -62,19 +56,20 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
                     decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.orange.shade300,
+                              color: Color(0xFF0B7DE3),
                               offset: Offset(1.0, 1.0),
                               blurRadius: 8.0)
                         ],
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
-                            colors: [Colors.orange, Colors.orange])),
+                            colors: [Color(0xFF0000E2), Color(0xFF0000F0)])),
                     child: CircleAvatar(
                         radius: 44.5,
-                        backgroundImage: '${auser?.photoUrl}' != null ||
+                        backgroundImage: '${auser?.photoUrl}' != null &&
+                                // ||
                                 '${auser?.photoUrl}' != 'null'
                             ? NetworkImage('${auser?.photoUrl}')
-                            : AssetImage('assets/prof.jpg')),
+                            : AssetImage('assets/anonym.jpg')),
                   ),
                   SizedBox(height: 5.0),
                   Text(
@@ -98,9 +93,9 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
               ),
             ),
             decoration: BoxDecoration(
-                color: Colors.orange.shade100,
+                color: Color(0xFF004BE2),
                 image: DecorationImage(
-                    image: AssetImage('assets/atlas.jpg'), fit: BoxFit.cover)),
+                    image: AssetImage('assets/earth.jpg'), fit: BoxFit.cover)),
           ),
           SizedBox(height: 10.0),
           _buildRow(Icons.home, 'Home', context, MyApp()),
@@ -122,7 +117,7 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
               child: Row(children: [
                 Icon(
                   Icons.power_settings_new,
-                  color: Colors.orange.shade300,
+                  color: Color(0xFF0000F0),
                 ),
                 SizedBox(width: 10.0),
                 Text(
@@ -158,7 +153,7 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
         child: Row(children: [
           Icon(
             icon,
-            color: Colors.orange.shade300,
+            color: Color(0xFF0000F0),
           ),
           SizedBox(width: 10.0),
           Text(

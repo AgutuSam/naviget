@@ -330,7 +330,7 @@ class _MapViewState extends State<MapView> {
         appBar: AppBar(
           title: Center(
               child: Text(
-            'Naviget',
+            'SSUC Navigation',
             style: TextStyle(color: (Colors.white)),
           )),
           actions: <Widget>[
@@ -339,7 +339,7 @@ class _MapViewState extends State<MapView> {
                 color: Colors.white,
                 onPressed: () {
                   setState(() {
-                    extrasVisible = !extrasVisible;
+                    // extrasVisible = !extrasVisible;
                   });
                 })
           ],
