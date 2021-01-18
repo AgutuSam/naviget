@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:naviget/auth/auth.dart';
 import 'package:naviget/drawer.dart';
 import 'package:naviget/secrets.dart'; // Stores the Google Maps API Key
+// import 'package:naviget/secrets.dart'; // Stores the Google Maps API Key
 
 import 'dart:math' show cos, sqrt, asin;
 
