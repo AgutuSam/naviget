@@ -71,18 +71,26 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
                             colors: [Colors.orange, Colors.orange])),
                     child: CircleAvatar(
                         radius: 44.5,
-                        backgroundImage: AssetImage('assets/prof.jpg')),
+                        backgroundImage: '${auser?.photoUrl}' != null ||
+                                '${auser?.photoUrl}' != 'null'
+                            ? NetworkImage('${auser?.photoUrl}')
+                            : AssetImage('assets/prof.jpg')),
                   ),
                   SizedBox(height: 5.0),
                   Text(
-                    'Anonymous User',
+                    '${auser?.displayName}' != null &&
+                            '${auser?.displayName}' != 'null'
+                        ? '${auser?.displayName}'
+                        : 'Anonymous',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 18.0,
                         fontWeight: FontWeight.w600),
                   ),
                   Text(
-                    'Anonym@naviget.com',
+                    '${auser?.email}' != null
+                        ? '${auser?.email}'
+                        : 'Anonym@naviget.com',
                     style: TextStyle(color: Colors.white, fontSize: 16.0),
                   ),
                   SizedBox(height: 5.0),

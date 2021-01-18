@@ -20,9 +20,11 @@ class _SignInState extends State<SignIn> {
   final email = TextEditingController();
   final password = TextEditingController();
   final passwordResetEmail = TextEditingController();
+  bool otherSignIn;
 
   @override
   void initState() {
+    otherSignIn = true;
     super.initState();
   }
 
@@ -51,7 +53,7 @@ class _SignInState extends State<SignIn> {
               child: Align(
                 alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
+                  padding: const EdgeInsets.only(bottom: 0.0),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white70,
@@ -68,7 +70,7 @@ class _SignInState extends State<SignIn> {
                           Form(
                             key: _formKey,
                             child: Container(
-                              height: 400,
+                              height: height * 0.54,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
@@ -86,6 +88,11 @@ class _SignInState extends State<SignIn> {
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(12))),
                                     child: TextFormField(
+                                      onTap: () {
+                                        setState(() {
+                                          otherSignIn = false;
+                                        });
+                                      },
                                       controller: email,
                                       validator: (value) {
                                         if (value.isEmpty) {
@@ -155,11 +162,15 @@ class _SignInState extends State<SignIn> {
                                     ),
                                   ),
                                   SizedBox(
-                                    height: 20,
+                                    height: 10,
                                   ),
                                   Container(
                                     width: double.infinity,
-                                    padding: EdgeInsets.all(30.0),
+                                    padding: EdgeInsets.only(
+                                        left: 30.0,
+                                        right: 30.0,
+                                        top: 15.0,
+                                        bottom: 10.0),
                                     child: RaisedButton(
                                       padding:
                                           EdgeInsets.symmetric(vertical: 16.0),
@@ -194,100 +205,103 @@ class _SignInState extends State<SignIn> {
               ),
             ),
             SizedBox(
-              height: 100,
+              height: 80,
             ),
             SafeArea(
-                child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Text("or, connect with",
-                      style: TextStyle(
-                          color: Colors.white70,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14.0)),
-                  SizedBox(
-                    height: 10.0,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      ButtonTheme(
-                        minWidth: width * 0.4,
-                        child: RaisedButton.icon(
-                          onPressed: () => signInWithGoogle(),
-                          color: Colors.red,
-                          elevation: 10.0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0)),
-                          icon: Icon(
-                            FontAwesomeIcons.google,
+                child: Visibility(
+              visible: MediaQuery.of(context).viewInsets.bottom == 0,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Text("or, connect with",
+                        style: TextStyle(
                             color: Colors.white70,
-                          ),
-                          label: Text(
-                            "Google",
-                            style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14.0)),
+                    SizedBox(
+                      height: 10.0,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        ButtonTheme(
+                          minWidth: width * 0.4,
+                          child: RaisedButton.icon(
+                            onPressed: () => signInWithGoogle(),
+                            color: Colors.red,
+                            elevation: 10.0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0)),
+                            icon: Icon(
+                              FontAwesomeIcons.google,
                               color: Colors.white70,
+                            ),
+                            label: Text(
+                              "Google",
+                              style: TextStyle(
+                                color: Colors.white70,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      // SizedBox(width: 10.0),
-                      ButtonTheme(
-                        minWidth: width * 0.4,
-                        child: RaisedButton.icon(
-                          onPressed: () => signInWithFacebook(),
-                          color: Colors.indigo,
-                          elevation: 10.0,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0)),
-                          icon: Icon(
-                            FontAwesomeIcons.facebookF,
-                            color: Colors.white70,
-                          ),
-                          label: Text(
-                            "Facebook",
-                            style: TextStyle(
+                        // SizedBox(width: 10.0),
+                        ButtonTheme(
+                          minWidth: width * 0.4,
+                          child: RaisedButton.icon(
+                            onPressed: () => signInWithFacebook(),
+                            color: Colors.indigo,
+                            elevation: 10.0,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0)),
+                            icon: Icon(
+                              FontAwesomeIcons.facebookF,
                               color: Colors.white70,
+                            ),
+                            label: Text(
+                              "Facebook",
+                              style: TextStyle(
+                                color: Colors.white70,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text("Dont have an account?",
-                          style: TextStyle(
-                              color: Colors.white70,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.0)),
-                      FlatButton(
-                        child: Text("Sign Up",
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text("Dont have an account?",
                             style: TextStyle(
-                                color: Colors.orange.shade100,
+                                color: Colors.white70,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12.0)),
-                        textColor: Colors.indigo,
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignUp(),
-                                  fullscreenDialog: true));
-                        },
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                ],
+                        FlatButton(
+                          child: Text("Sign Up",
+                              style: TextStyle(
+                                  color: Colors.orange.shade100,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.0)),
+                          textColor: Colors.indigo,
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SignUp(),
+                                    fullscreenDialog: true));
+                          },
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 2,
+                    ),
+                  ],
+                ),
               ),
             ))
           ],
@@ -359,6 +373,7 @@ class _SignInState extends State<SignIn> {
             .signInWithFireBaseAuth(email: email, password: password);
         print(user.uid);
         widget.onSignedIn();
+        CircularProgressIndicator();
       } catch (e) {
         Toast.show(e.message, context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
@@ -373,6 +388,7 @@ class _SignInState extends State<SignIn> {
       FirebaseUser user = await widget.auth.signInWithGoogle();
       print(user.uid);
       widget.onSignedIn();
+      CircularProgressIndicator();
     } catch (e) {
       Toast.show(e.message, context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
@@ -386,6 +402,7 @@ class _SignInState extends State<SignIn> {
       FirebaseUser user = await widget.auth.signInWithFacebook();
       print(user.uid);
       widget.onSignedIn();
+      CircularProgressIndicator();
     } catch (e) {
       Toast.show(e.message, context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);

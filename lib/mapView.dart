@@ -27,6 +27,7 @@ class _MapViewState extends State<MapView> {
 
   final startAddressController = TextEditingController();
   final destinationAddressController = TextEditingController();
+  final markerController = TextEditingController();
 
   String _startAddress = '';
   String _destinationAddress = '';
@@ -41,6 +42,8 @@ class _MapViewState extends State<MapView> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool extrasVisible;
+  bool markerVisible;
+  Set<Circle> circles;
 
   Widget _textField({
     TextEditingController controller,
@@ -105,6 +108,13 @@ class _MapViewState extends State<MapView> {
             ),
           ),
         );
+        // circles = Set.from([
+        //   Circle(
+        //     circleId: CircleId('myCircle'),
+        //     center: LatLng(position.latitude, position.longitude),
+        //     radius: 4000, //*********radius in metres *******/
+        //   )
+        // ]);
       });
       await _getAddress();
     }).catchError((e) {
@@ -302,6 +312,7 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     extrasVisible = false;
+    markerVisible = true;
     super.initState();
     _getCurrentLocation();
   }
@@ -349,6 +360,7 @@ class _MapViewState extends State<MapView> {
               onMapCreated: (GoogleMapController controller) {
                 mapController = controller;
               },
+              // circles: circles,
             ),
             // Show zoom buttons
             SafeArea(
@@ -421,97 +433,126 @@ class _MapViewState extends State<MapView> {
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             SizedBox(height: 10),
-                            _textField(
-                                label: 'Start',
-                                hint: 'Choose starting point',
-                                prefixIcon: Icon(Icons.looks_one),
-                                suffixIcon: IconButton(
-                                  icon: Icon(Icons.my_location),
-                                  onPressed: () {
-                                    startAddressController.text =
-                                        _currentAddress;
-                                    _startAddress = _currentAddress;
-                                  },
-                                ),
-                                controller: startAddressController,
-                                width: width,
-                                locationCallback: (String value) {
-                                  setState(() {
-                                    _startAddress = value;
-                                  });
-                                }),
-                            SizedBox(height: 10),
-                            _textField(
-                                label: 'Destination',
-                                hint: 'Choose destination',
-                                prefixIcon: Icon(Icons.looks_two),
-                                controller: destinationAddressController,
-                                width: width,
-                                locationCallback: (String value) {
-                                  setState(() {
-                                    _destinationAddress = value;
-                                  });
-                                }),
-                            SizedBox(height: 10),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                              child: ButtonTheme(
+                                  child: RaisedButton.icon(
+                                      color: Colors.blueAccent,
+                                      onPressed: () {},
+                                      icon: Icon(Icons.directions_walk,
+                                          color: Colors.white70),
+                                      label: Text('Start',
+                                          style: TextStyle(
+                                              color: Colors.white70)))),
+                            ),
                             Visibility(
-                              visible: _placeDistance == null ? false : true,
-                              child: Text(
-                                'DISTANCE: $_placeDistance km',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              visible: markerVisible,
+                              child: Container(
+                                width: double.infinity,
+                                padding:
+                                    EdgeInsets.only(left: 30.0, right: 30.0),
+                                child: ButtonTheme(
+                                    child: RaisedButton.icon(
+                                        color: Colors.blueAccent,
+                                        onPressed: () {
+                                          setState(() {
+                                            markerVisible = !markerVisible;
+                                          });
+                                        },
+                                        icon: Icon(Icons.not_listed_location,
+                                            color: Colors.white70),
+                                        label: Text('Add Marker',
+                                            style: TextStyle(
+                                                color: Colors.white70)))),
                               ),
                             ),
-                            SizedBox(height: 5),
-                            RaisedButton(
-                              onPressed: (_startAddress != '' &&
-                                      _destinationAddress != '')
-                                  ? () async {
-                                      setState(() {
-                                        if (markers.isNotEmpty) markers.clear();
-                                        if (polylines.isNotEmpty)
-                                          polylines.clear();
-                                        if (polylineCoordinates.isNotEmpty)
-                                          polylineCoordinates.clear();
-                                        _placeDistance = null;
-                                      });
-
-                                      _calculateDistance().then((isCalculated) {
-                                        if (isCalculated) {
-                                          _scaffoldKey.currentState
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Distance Calculated Sucessfully'),
+                            Visibility(
+                                visible: !markerVisible,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(15.0),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 30.0, right: 30.0),
+                                        child: TextFormField(
+                                          controller: markerController,
+                                          decoration: new InputDecoration(
+                                            prefixIcon:
+                                                Icon(Icons.not_listed_location),
+                                            labelText: 'Point Name',
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10.0),
+                                              ),
+                                              borderSide: BorderSide(
+                                                color: Colors.black54,
+                                                width: 2,
+                                              ),
                                             ),
-                                          );
-                                        } else {
-                                          _scaffoldKey.currentState
-                                              .showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                  'Error Calculating Distance'),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius: BorderRadius.all(
+                                                Radius.circular(10.0),
+                                              ),
+                                              borderSide: BorderSide(
+                                                color: Colors.black54,
+                                                width: 2,
+                                              ),
                                             ),
-                                          );
-                                        }
-                                      });
-                                    }
-                                  : null,
-                              color: Colors.red,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  'Show Route'.toUpperCase(),
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20.0,
+                                            contentPadding: EdgeInsets.all(15),
+                                            hintText:
+                                                'Give custom name to this point!',
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 2,
+                                      ),
+                                      Container(
+                                        width: double.infinity,
+                                        padding: EdgeInsets.only(
+                                            left: 30.0, right: 30.0),
+                                        child: RaisedButton(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 8.0),
+                                          color: Colors.green.shade500,
+                                          onPressed: () {
+                                            setState(() {
+                                              markerVisible = !markerVisible;
+                                            });
+                                          },
+                                          elevation: 11,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(12.0))),
+                                          child: Text("Add",
+                                              style: TextStyle(
+                                                  color: Colors.white70)),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 2,
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ),
+                                )),
+                            Container(
+                              width: double.infinity,
+                              padding: EdgeInsets.only(left: 30.0, right: 30.0),
+                              child: ButtonTheme(
+                                  child: RaisedButton.icon(
+                                      color: Colors.blueAccent,
+                                      onPressed: () {},
+                                      icon: Icon(Icons.accessibility,
+                                          color: Colors.white70),
+                                      label: Text('Stop',
+                                          style:
+                                              TextStyle(color: Colors.white)))),
                             ),
                           ],
                         ),

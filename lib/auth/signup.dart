@@ -44,7 +44,7 @@ class _SignUpState extends State<SignUp> {
               child: Align(
                 alignment: Alignment.center,
                 child: Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
+                  padding: const EdgeInsets.only(top: 0.0),
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white70,
@@ -61,7 +61,7 @@ class _SignUpState extends State<SignUp> {
                           Form(
                             key: _formKey,
                             child: Container(
-                              height: 400,
+                              height: height * 0.54,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
@@ -73,7 +73,7 @@ class _SignUpState extends State<SignUp> {
                                           fontSize: 28.0)),
                                   Card(
                                     margin: EdgeInsets.only(
-                                        left: 30, right: 30, top: 30),
+                                        left: 30, right: 30, top: 10),
                                     elevation: 11,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.all(
@@ -107,12 +107,12 @@ class _SignUpState extends State<SignUp> {
                                           ),
                                           contentPadding: EdgeInsets.symmetric(
                                               horizontal: 20.0,
-                                              vertical: 16.0)),
+                                              vertical: 10.0)),
                                     ),
                                   ),
                                   Card(
                                     margin: EdgeInsets.only(
-                                        left: 30, right: 30, top: 20),
+                                        left: 30, right: 30, top: 10),
                                     elevation: 11,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.all(
@@ -143,19 +143,25 @@ class _SignUpState extends State<SignUp> {
                                           ),
                                           contentPadding: EdgeInsets.symmetric(
                                               horizontal: 20.0,
-                                              vertical: 16.0)),
+                                              vertical: 10.0)),
                                       obscureText: true,
                                     ),
                                   ),
                                   Card(
                                     margin: EdgeInsets.only(
-                                        left: 30, right: 30, top: 20),
+                                        left: 30, right: 30, top: 10),
                                     elevation: 11,
                                     shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(12))),
-                                    child: TextField(
+                                    child: TextFormField(
                                       controller: confirmPass,
+                                      validator: (value) {
+                                        if (value.isEmpty) {
+                                          return 'This field cannot be Null!';
+                                        }
+                                        return null;
+                                      },
                                       decoration: InputDecoration(
                                           prefixIcon: Icon(
                                             Icons.lock,
@@ -174,16 +180,20 @@ class _SignUpState extends State<SignUp> {
                                           ),
                                           contentPadding: EdgeInsets.symmetric(
                                               horizontal: 20.0,
-                                              vertical: 16.0)),
+                                              vertical: 10.0)),
                                       obscureText: true,
                                     ),
                                   ),
                                   SizedBox(
-                                    height: 20,
+                                    height: 10,
                                   ),
                                   Container(
                                     width: double.infinity,
-                                    padding: EdgeInsets.all(30.0),
+                                    padding: EdgeInsets.only(
+                                        left: 30.0,
+                                        right: 30.0,
+                                        top: 15.0,
+                                        bottom: 5.0),
                                     child: RaisedButton(
                                       padding:
                                           EdgeInsets.symmetric(vertical: 16.0),
@@ -227,42 +237,46 @@ class _SignUpState extends State<SignUp> {
               height: 60,
             ),
             SafeArea(
+              child: Visibility(
+                visible: MediaQuery.of(context).viewInsets.bottom == 0,
                 child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  alignment: Alignment.bottomCenter,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: <Widget>[
-                      Text("Already have an account?",
-                          style: TextStyle(
-                              color: Colors.white70,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12.0)),
-                      FlatButton(
-                        child: Text("Sign In",
-                            style: TextStyle(
-                                color: Colors.orange.shade100,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12.0)),
-                        textColor: Colors.indigo,
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignIn(),
-                                  fullscreenDialog: true));
-                        },
-                      )
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text("Already have an account?",
+                              style: TextStyle(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12.0)),
+                          FlatButton(
+                            child: Text("Sign In",
+                                style: TextStyle(
+                                    color: Colors.orange.shade100,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12.0)),
+                            textColor: Colors.indigo,
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SignIn(),
+                                      fullscreenDialog: true));
+                            },
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
                     ],
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                ],
+                ),
               ),
-            ))
+            )
           ],
         ),
       ),
