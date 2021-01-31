@@ -8,6 +8,8 @@
 
          <!-- location permission -->
          <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+         <!-- wake lock permission -->
+         <uses-permission android:name="android.permission.WAKE_LOCK" />
          
     <application
         android:name="io.flutter.app.FlutterApplication"

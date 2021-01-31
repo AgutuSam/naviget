@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:naviget/alert.dart';
 import 'package:naviget/auth/signin.dart';
 import 'package:toast/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,6 +15,7 @@ class _SignUpState extends State<SignUp> {
   final email = TextEditingController();
   final password = TextEditingController();
   final confirmPass = TextEditingController();
+  final databaseReference = FirebaseFirestore.instance;
 
   @override
   void initState() {
@@ -212,12 +215,21 @@ class _SignUpState extends State<SignUp> {
                                                 duration: Toast.LENGTH_LONG,
                                                 gravity: Toast.BOTTOM);
                                           } else {
-                                            signup(email.text, password.text);
-                                            Toast.show(
-                                                'A verification Link has been sent to your Email!',
+                                            signup(email.text, password.text)
+                                                .then((value) {
+                                              showDialog(
+                                                  context: context,
+                                                  builder:
+                                                      (BuildContext context) {
+                                                    return BeautifulAlertDialog(
+                                                        value);
+                                                  });
+                                            });
+                                            Navigator.push(
                                                 context,
-                                                duration: Toast.LENGTH_LONG,
-                                                gravity: Toast.BOTTOM);
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        SignIn()));
                                           }
                                         },
                                         elevation: 11,
@@ -292,17 +304,17 @@ class _SignUpState extends State<SignUp> {
   }
 
   //EmailPassword Sign
-  Future<void> signup(String email, String password) async {
+  Future signup(String email, String password) async {
     final formState = _formKey.currentState;
     if (formState.validate()) {
       try {
-        AuthResult res = await FirebaseAuth.instance
+        UserCredential res = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
+
         res.user.sendEmailVerification();
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => SignIn()));
+        return 'A verification link has been sent to your email!';
       } catch (e) {
-        print(e.message);
+        return e?.message != null ? print(e.message) : e;
       }
     }
   }

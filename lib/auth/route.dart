@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:naviget/auth/auth.dart';
 import 'package:naviget/auth/signin.dart';
@@ -14,6 +15,7 @@ enum AuthStatus { notSignedIn, signedIn }
 
 class _RoutePageState extends State<RoutePage> {
   AuthStatus authStatus = AuthStatus.notSignedIn;
+  final databaseReference = FirebaseFirestore.instance.collection('Users');
 
   @override
   initState() {
@@ -25,6 +27,25 @@ class _RoutePageState extends State<RoutePage> {
   }
 
   void _signedIn() {
+    widget.auth.currentUser().then((user) {
+      databaseReference
+          .doc(user.uid)
+          .get()
+          .then((DocumentSnapshot documentSnapshot) {
+        if (!documentSnapshot.exists) {
+          print('******************************88');
+          print('******************************88');
+          print('******************************88');
+
+          databaseReference.doc(user.uid).set({
+            'Email': user.email,
+            'UserId': user.uid,
+            'UserType': 'guest',
+          });
+        }
+      });
+    });
+
     setState(() {
       authStatus = AuthStatus.signedIn;
     });

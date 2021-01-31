@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:naviget/auth/auth.dart';
 import 'package:naviget/auth/signin.dart';
 import 'package:naviget/main.dart';
+import 'package:naviget/shared/buddiesList.dart';
+import 'package:naviget/shared/maps.dart';
 import 'package:toast/toast.dart';
 
 class PrimeDrawer extends StatefulWidget {
@@ -14,10 +16,10 @@ class PrimeDrawer extends StatefulWidget {
 }
 
 class _PrimeDrawerState extends State<PrimeDrawer> {
-  FirebaseUser auser;
+  User auser;
 
   user() async {
-    final FirebaseUser thisuser = await widget.auth.currentUser();
+    final User thisuser = await widget.auth.currentUser();
     setState(() {
       auser = thisuser;
     });
@@ -32,6 +34,9 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
   void _signOut() async {
     try {
       await widget.auth.signOutFireBaseAuth();
+      await widget.auth
+          .signOutGoogle()
+          .whenComplete(() async => await widget.auth.signOutFireBaseAuth());
       widget.onSignedOut();
     } catch (e) {
       Toast.show(e.toString(), context,
@@ -65,10 +70,10 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
                             colors: [Color(0xFF0000E2), Color(0xFF0000F0)])),
                     child: CircleAvatar(
                         radius: 44.5,
-                        backgroundImage: '${auser?.photoUrl}' != null &&
+                        backgroundImage: '${auser?.photoURL}' != null &&
                                 // ||
-                                '${auser?.photoUrl}' != 'null'
-                            ? NetworkImage('${auser?.photoUrl}')
+                                '${auser?.photoURL}' != 'null'
+                            ? NetworkImage('${auser?.photoURL}')
                             : AssetImage('assets/anonym.jpg')),
                   ),
                   SizedBox(height: 5.0),
@@ -102,9 +107,9 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
           _buildDivider(),
           _buildRow(Icons.account_circle, 'Profile', context, MyApp()),
           _buildDivider(),
-          _buildRow(Icons.email, 'Contact us', context, MyApp()),
+          _buildRow(Icons.forward_rounded, 'Shared', context, BuddiesList()),
           _buildDivider(),
-          _buildRow(Icons.star, 'Rate us', context, MyApp()),
+          _buildRow(Icons.star, 'Maps', context, UniMaps()),
           _buildDivider(),
           _buildRow(Icons.help_outline, 'Help', context, MyApp()),
           _buildDivider(),
