@@ -6,6 +6,8 @@ import 'package:naviget/main.dart';
 import 'package:naviget/shared/buddiesList.dart';
 import 'package:naviget/shared/maps.dart';
 import 'package:toast/toast.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'admin.dart';
 
 class PrimeDrawer extends StatefulWidget {
   PrimeDrawer({this.auth, this.onSignedOut});
@@ -17,6 +19,9 @@ class PrimeDrawer extends StatefulWidget {
 
 class _PrimeDrawerState extends State<PrimeDrawer> {
   User auser;
+  final CollectionReference userColl =
+      FirebaseFirestore.instance.collection('Users');
+  Map<String, dynamic> data;
 
   user() async {
     final User thisuser = await widget.auth.currentUser();
@@ -29,6 +34,14 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
   void initState() {
     user();
     super.initState();
+    widget.auth.currentUser().then((user) {
+      userColl.doc(user.uid).get().then((value) {
+        setState(() {
+          data = value.data();
+        });
+      });
+    });
+    data = {'UserType': 'guest'};
   }
 
   void _signOut() async {
@@ -107,7 +120,23 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
           _buildDivider(),
           _buildRow(Icons.account_circle, 'Profile', context, MyApp()),
           _buildDivider(),
-          _buildRow(Icons.forward_rounded, 'Shared', context, BuddiesList()),
+          Visibility(
+            visible: data['UserType'] == 'admin',
+            child: Column(
+              children: <Widget>[
+                _buildRow(
+                    Icons.admin_panel_settings, 'Admin', context, Admin()),
+                _buildDivider(),
+              ],
+            ),
+          ),
+          _buildRow(
+              Icons.forward_rounded,
+              'Shared',
+              context,
+              BuddiesList(
+                auth: widget.auth,
+              )),
           _buildDivider(),
           _buildRow(Icons.star, 'Maps', context, UniMaps()),
           _buildDivider(),

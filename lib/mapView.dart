@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:ffi';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:flutter_redux/flutter_redux.dart';
@@ -40,6 +42,8 @@ class _MapViewState extends State<MapView> {
       FirebaseFirestore.instance.collection('Maps');
   final CollectionReference userColl =
       FirebaseFirestore.instance.collection('Users');
+  final CollectionReference userShared =
+      FirebaseFirestore.instance.collection('Shared');
 
   final Geolocator _geolocator = Geolocator();
 
@@ -53,7 +57,10 @@ class _MapViewState extends State<MapView> {
   final markerController = TextEditingController();
   final startMarkerController = TextEditingController();
   final _mapformKey = GlobalKey<FormState>();
+  final _pointformKey = GlobalKey<FormState>();
   final mapName = TextEditingController();
+  final pointName = TextEditingController();
+  final pointLoc = TextEditingController();
 
   String _startAddress = '';
   String _destinationAddress = '';
@@ -77,6 +84,8 @@ class _MapViewState extends State<MapView> {
   Set<Circle> circles;
 
   Map<String, dynamic> data;
+
+  User auser;
 
   Widget _textField({
     TextEditingController controller,
@@ -395,26 +404,97 @@ class _MapViewState extends State<MapView> {
     // initState();
   }
 
-  saveMap(List<List> myPollies, List<List> myMarcers) {
+  saveMap(List<List> myPollies, List<Map> myMarcers) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
           return Form(
             key: _mapformKey,
             child: AlertDialog(
-              title: Text('Name'),
-              content: TextFormField(
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Name cannot be Null!';
-                  }
-                  return null;
-                },
-                style: TextStyle(color: Colors.blue),
-                controller: mapName,
-                decoration: InputDecoration(
-                  hintText: 'Name',
-                  hintStyle: TextStyle(color: Colors.blue.shade500),
+              title: Text('Map Name'),
+              content: Container(
+                height: MediaQuery.of(context).size.height * 0.2,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Point Name cannot be Null!';
+                          }
+                          return null;
+                        },
+                        style: TextStyle(color: Colors.blue),
+                        controller: pointName,
+                        decoration: new InputDecoration(
+                          prefixIcon: Icon(Icons.not_listed_location),
+                          labelText: 'Point Name',
+                          filled: true,
+                          fillColor: Colors.white,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.all(15),
+                          hintText: 'Custom point name!',
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Name cannot be Null!';
+                          }
+                          return null;
+                        },
+                        style: TextStyle(color: Colors.blue),
+                        controller: mapName,
+                        decoration: new InputDecoration(
+                          prefixIcon: Icon(Icons.map_outlined),
+                          labelText: 'Map Name',
+                          filled: true,
+                          fillColor: Colors.white,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.all(15),
+                          hintText: 'Custom map name!',
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               actions: <Widget>[
@@ -438,10 +518,21 @@ class _MapViewState extends State<MapView> {
                                   myMarcers.asMap().entries.map((widget) {
                                 return {widget.key.toString(): widget.value};
                               }).toList();
+                              var randomID = Random().nextInt(500).toString();
+                              _geolocator.getCurrentPosition().then((value) {
+                                myMarcers.add({
+                                  'markerId': MarkerId(randomID),
+                                  'position':
+                                      LatLng(value.latitude, value.longitude),
+                                  'title': pointName.text,
+                                  'address': _currentAddress,
+                                  // [value.latitude, value.longitude]
+                                });
+                              });
                               databaseMapReference.doc(user.uid).set({
                                 mapName.text: {
                                   'Polies': pol,
-                                  'Markers': mac,
+                                  'Markers': myMarcers,
                                   'User': user.uid,
                                   'UserName': user.displayName,
                                   'UserEmail': user.email,
@@ -480,8 +571,96 @@ class _MapViewState extends State<MapView> {
         });
   }
 
+  sendLoc(List point, String address) {
+    final _chars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    Random _rnd = Random();
+
+    String getRandomString(int length) =>
+        String.fromCharCodes(Iterable.generate(
+            length, (_) => _chars.codeUnitAt(_rnd.nextInt(_chars.length))));
+
+    var gen = getRandomString(8);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return Form(
+            key: _pointformKey,
+            child: AlertDialog(
+              title: Text('Email'),
+              content: TextFormField(
+                validator: (value) {
+                  if (value.isEmpty) {
+                    return 'Email cannot be Null!';
+                  }
+                  return null;
+                },
+                style: TextStyle(color: Colors.blue),
+                controller: pointLoc,
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  hintStyle: TextStyle(color: Colors.blue.shade500),
+                ),
+              ),
+              actions: <Widget>[
+                MaterialButton(
+                  onPressed: () async {
+                    final formState = _pointformKey.currentState;
+                    if (formState.validate()) {
+                      try {
+                        userShared
+                            .doc(gen.toString())
+                            .get()
+                            .then((DocumentSnapshot documentSnapshot) {
+                          if (!documentSnapshot.exists) {
+                            userShared.doc(gen.toString()).set({
+                              'Sender': auser.email.toString(),
+                              'Reciever': pointLoc.text,
+                              'Marker': point,
+                              'Address': address.toString(),
+                            });
+                          }
+                        });
+                        Navigator.pop(context);
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return BeautifulAlertDialog(
+                                'Point has been Shared successfully!',
+                              );
+                            });
+                      } catch (e) {
+                        e.message != null
+                            ? showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return BeautifulAlertDialog(e.message);
+                                })
+                            : print('e.message is null');
+                        // print(e.message);
+                      }
+                    }
+                  },
+                  child: Text('Submit',
+                      style: TextStyle(color: Colors.blue, fontSize: 22)),
+                  elevation: 5.0,
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  user() async {
+    final User thisuser = await widget.auth.currentUser();
+    setState(() {
+      auser = thisuser;
+    });
+  }
+
   @override
   void initState() {
+    user();
     data = {'UserType': 'guest'};
     myPolylines = [];
     extrasVisible = false;
@@ -525,8 +704,7 @@ class _MapViewState extends State<MapView> {
                     store.state.extrasVisible,
                 builder: (BuildContext context, bool extrasVisible) {
                   return Visibility(
-                    visible: true,
-                    // visible: data['UserType'] == 'admin' ? true : false,
+                    visible: data['UserType'] == 'admin' ? true : false,
                     child: IconButton(
                         icon: Icon(Icons.map),
                         color: Colors.white,
@@ -538,7 +716,7 @@ class _MapViewState extends State<MapView> {
                 },
               ),
             ],
-            iconTheme: new IconThemeData(color: Colors.white),
+            iconTheme: IconThemeData(color: Colors.white),
           ),
           drawer: PrimeDrawer(auth: widget.auth, onSignedOut: _signedOut),
           body: Stack(
@@ -914,107 +1092,35 @@ class _MapViewState extends State<MapView> {
                                           padding: EdgeInsets.only(
                                               left: 30.0, right: 30.0),
                                           child: ButtonTheme(
-                                              child: RaisedButton.icon(
-                                                  color: Colors.blueAccent,
-                                                  onPressed: () {
-                                                    // myPolylines =
-                                                    //     polylineCoordinates;
-                                                    // stopMarking(latLangs);
-                                                    showDialog(
-                                                        context: context,
-                                                        builder: (BuildContext
-                                                            context) {
-                                                          return Form(
-                                                            key: _mapformKey,
-                                                            child: AlertDialog(
-                                                              title:
-                                                                  Text('Name'),
-                                                              content:
-                                                                  TextFormField(
-                                                                validator:
-                                                                    (value) {
-                                                                  if (value
-                                                                      .isEmpty) {
-                                                                    return 'Name cannot be Null!';
-                                                                  }
-                                                                  return null;
-                                                                },
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .blue),
-                                                                controller:
-                                                                    mapName,
-                                                                decoration:
-                                                                    InputDecoration(
-                                                                  hintText:
-                                                                      'Name',
-                                                                  hintStyle: TextStyle(
-                                                                      color: Colors
-                                                                          .blue
-                                                                          .shade500),
-                                                                ),
-                                                              ),
-                                                              actions: <Widget>[
-                                                                StoreConnector<
-                                                                    AppStates,
-                                                                    bool>(
-                                                                  converter: (Store<
-                                                                              AppStates>
-                                                                          store) =>
-                                                                      store
-                                                                          .state
-                                                                          .stopVisible,
-                                                                  builder: (BuildContext
-                                                                          context,
-                                                                      bool
-                                                                          stopVisible) {
-                                                                    return MaterialButton(
-                                                                      onPressed:
-                                                                          () async {
-                                                                        final formState =
-                                                                            _mapformKey.currentState;
-                                                                        if (formState
-                                                                            .validate()) {
-                                                                          try {
-                                                                            StoreProvider.of<AppStates>(context).dispatch(StopMarking(
-                                                                                auth: widget.auth,
-                                                                                context: context,
-                                                                                databaseMapReference: databaseMapReference,
-                                                                                mapName: mapName.text));
-                                                                          } catch (e) {
-                                                                            e.message != null
-                                                                                ? showDialog(
-                                                                                    context: context,
-                                                                                    builder: (BuildContext context) {
-                                                                                      return BeautifulAlertDialog(e.message);
-                                                                                    })
-                                                                                : print('e.message is null');
-                                                                            // print(e.message);
-                                                                          }
-                                                                        }
-                                                                      },
-                                                                      child: Text(
-                                                                          'Submit',
-                                                                          style: TextStyle(
-                                                                              color: Colors.blue,
-                                                                              fontSize: 22)),
-                                                                      elevation:
-                                                                          5.0,
-                                                                    );
-                                                                  },
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        });
-                                                  },
-                                                  icon: Icon(
-                                                      Icons.accessibility,
-                                                      color: Colors.white70),
-                                                  label: Text('Stop',
-                                                      style: TextStyle(
+                                            child: StoreConnector<AppStates,
+                                                    List>(
+                                                converter:
+                                                    (Store<AppStates> store) =>
+                                                        store.state.latLangs,
+                                                builder: (BuildContext context,
+                                                    List latLngs) {
+                                                  return RaisedButton.icon(
+                                                      color: Colors.blueAccent,
+                                                      onPressed: () {
+                                                        // myPolylines =
+                                                        //     polylineCoordinates;
+                                                        // stopMarking(latLangs);
+                                                        saveMap(
+                                                            store
+                                                                .state.latLangs,
+                                                            store
+                                                                .state.marcers);
+                                                      },
+                                                      icon: Icon(
+                                                          Icons.accessibility,
                                                           color:
-                                                              Colors.white)))),
+                                                              Colors.white70),
+                                                      label: Text('Stop',
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white)));
+                                                }),
+                                          ),
                                         ),
                                       );
                                     },
@@ -1029,41 +1135,119 @@ class _MapViewState extends State<MapView> {
                   },
                 ),
               ),
-              // Show current location button
-              SafeArea(
-                child: Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 10.0, bottom: 10.0),
-                    child: ClipOval(
-                      child: Material(
-                        color: Colors.orange[100], // button color
-                        child: InkWell(
-                          splashColor: Colors.orange, // inkwell color
-                          child: SizedBox(
-                            width: 56,
-                            height: 56,
-                            child: Icon(Icons.my_location),
-                          ),
-                          onTap: () {
-                            mapController.animateCamera(
-                              CameraUpdate.newCameraPosition(
-                                CameraPosition(
-                                  target: LatLng(
-                                    _currentPosition.latitude,
-                                    _currentPosition.longitude,
+              StoreConnector<AppStates, bool>(
+                  converter: (Store<AppStates> store) =>
+                      store.state.floatsVisible,
+                  builder: (BuildContext context, bool floatsVisible) {
+                    return Visibility(
+                      visible: store.state.floatsVisible,
+                      child: SafeArea(
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 10.0, bottom: 150.0),
+                            child: ClipOval(
+                              child: Material(
+                                color: Colors.orange[100], // button color
+                                child: InkWell(
+                                  splashColor: Colors.orange, // inkwell color
+                                  child: SizedBox(
+                                    width: 56,
+                                    height: 56,
+                                    child: Icon(Icons.reply),
                                   ),
-                                  zoom: 18.0,
+                                  onTap: () {
+                                    _geolocator
+                                        .getCurrentPosition()
+                                        .then((value) {
+                                      sendLoc([value.latitude, value.longitude],
+                                          _currentAddress);
+                                    });
+                                  },
                                 ),
                               ),
-                            );
-                          },
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                ),
-              ),
+                    );
+                  }),
+              StoreConnector<AppStates, bool>(
+                  converter: (Store<AppStates> store) =>
+                      store.state.floatsVisible,
+                  builder: (BuildContext context, bool floatsVisible) {
+                    return Visibility(
+                      visible: store.state.floatsVisible,
+                      child: SafeArea(
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                right: 10.0, bottom: 80.0),
+                            child: ClipOval(
+                              child: Material(
+                                color: Colors.orange[100], // button color
+                                child: InkWell(
+                                  splashColor: Colors.orange, // inkwell color
+                                  child: SizedBox(
+                                    width: 56,
+                                    height: 56,
+                                    child: Icon(Icons.my_location),
+                                  ),
+                                  onTap: () {
+                                    mapController.animateCamera(
+                                      CameraUpdate.newCameraPosition(
+                                        CameraPosition(
+                                          target: LatLng(
+                                            _currentPosition.latitude,
+                                            _currentPosition.longitude,
+                                          ),
+                                          zoom: 18.0,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+              // Show current location button
+              StoreConnector<AppStates, bool>(
+                  converter: (Store<AppStates> store) =>
+                      store.state.floatsVisible,
+                  builder: (BuildContext context, bool floatsVisible) {
+                    return SafeArea(
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Padding(
+                          padding:
+                              const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                          child: ClipOval(
+                            child: Material(
+                              color: Colors.orange[100], // button color
+                              child: InkWell(
+                                splashColor: Colors.orange, // inkwell color
+                                child: SizedBox(
+                                  width: 56,
+                                  height: 56,
+                                  child: Icon(Icons.add),
+                                ),
+                                onTap: () {
+                                  StoreProvider.of<AppStates>(context)
+                                      .dispatch(Floats());
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
             ],
           ),
         ),

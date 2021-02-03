@@ -1,27 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:naviget/shared/team.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:naviget/auth/auth.dart';
 
 class Bud extends StatefulWidget {
   const Bud({
+    this.auth,
     Key key,
   }) : super(key: key);
-
+  final BaseAuth auth;
   @override
   _BudState createState() => _BudState();
 }
 
 class _BudState extends State<Bud> with TickerProviderStateMixin {
   AnimationController animationController;
+  final CollectionReference userColl =
+      FirebaseFirestore.instance.collection('Shared');
+  User auser;
+  List<Team> theTeam;
+
+  user() async {
+    final User thisuser = await widget.auth.currentUser();
+    setState(() {
+      auser = thisuser;
+    });
+  }
+
   @override
   void initState() {
+    user();
     animationController = AnimationController(
         duration: const Duration(milliseconds: 2000), vsync: this);
     super.initState();
   }
 
-  Future<bool> getData() async {
+  Future<List> getData() async {
+    List<Team> _data = [];
+    userColl
+        .where('Reciever', isEqualTo: auser.email.toString())
+        .get()
+        .then((value) {
+      var _tabList = value.docs.asMap().entries.map((widget) {
+        return widget.key;
+      }).toList();
+      Map prods = value.docs.asMap();
+      print('****************************');
+      print(_tabList);
+      print(_tabList.toString());
+      print('****************************');
+      for (int i = 0; i < _tabList.length; i++) {
+        _data.add(Team(
+            name: '${prods[_tabList[i]]['Sender']}',
+            org: '${prods[_tabList[i]]['Address']}'));
+      }
+      setState(() {
+        theTeam = _data;
+      });
+    });
     await Future<dynamic>.delayed(const Duration(milliseconds: 200));
-    return true;
+
+    return _data;
   }
 
   @override
@@ -40,7 +80,7 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
       body: Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: SingleChildScrollView(
-          child: FutureBuilder<bool>(
+          child: FutureBuilder<List>(
             future: getData(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (!snapshot.hasData) {
@@ -56,9 +96,9 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: List<Widget>.generate(
-                        Team.teamList.length,
+                        theTeam.length,
                         (int index) {
-                          final int count = Team.teamList.length;
+                          final int count = theTeam.length;
                           final Animation<double> animation =
                               Tween<double>(begin: 0.0, end: 1.0).animate(
                             CurvedAnimation(
@@ -70,7 +110,7 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
                           animationController.forward();
                           return ModelView(
                             callback: () {},
-                            modell: Team.teamList[index],
+                            modell: theTeam[index],
                             animation: animation,
                             animationController: animationController,
                           );
@@ -131,13 +171,12 @@ class ModelView extends StatelessWidget {
                                 right: BorderSide(
                                     width: 1.5, color: Colors.black26))),
                         child: CircleAvatar(
-                            // child: Image.asset(model.imagePath),
-                            radius: 14.0,
-                            backgroundColor: Colors.white,
-                            backgroundImage:
-                                Image.asset('assets/prof.jpg').image
-                            // backgroundImage: Image.asset(model.imagePath).image,
-                            ),
+                          // child: Image.asset(model.imagePath),
+                          radius: 14.0,
+                          backgroundColor: Colors.white,
+                          child: Text(modell.name[0]),
+                          // backgroundImage: Image.asset(model.imagePath).image,
+                        ),
                       ),
                     ),
                     Expanded(
@@ -155,7 +194,7 @@ class ModelView extends StatelessWidget {
                                 style: TextStyle(
                                   color: Colors.black54,
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 24.0,
+                                  fontSize: 15.0,
                                 ),
                               ),
                               RichText(

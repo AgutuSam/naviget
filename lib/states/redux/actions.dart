@@ -60,3 +60,5 @@ class Extraz {}
 class Starter {}
 
 class Marcer {}
+
+class Floats {}

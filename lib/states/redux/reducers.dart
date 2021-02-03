@@ -10,9 +10,10 @@ import 'package:naviget/states/redux/actions.dart';
 
 AppStates reducer(AppStates prev, dynamic action) {
   if (action is StartMarking) {
+    var randomID  = Random().nextInt(500).toString();
     action.geolocator.getCurrentPosition().then((value) {
       prev.markers.add(Marker(
-        markerId: MarkerId(Random().nextInt(500).toString()),
+        markerId: MarkerId(randomID),
         position: LatLng(value.latitude, value.longitude),
         infoWindow: InfoWindow(
           title: action.name,
@@ -21,7 +22,13 @@ AppStates reducer(AppStates prev, dynamic action) {
         icon: BitmapDescriptor.defaultMarker,
       ));
 
-      prev.marcers.add([value.latitude, value.longitude]);
+      prev.marcers.add({
+        'markerId': MarkerId(randomID),
+        'position': LatLng(value.latitude, value.longitude),
+        'title': action.name,
+        'address': action.currentAddress,
+        // [value.latitude, value.longitude]
+      });
     });
     action.geolocator
         .getPositionStream(
@@ -42,9 +49,10 @@ AppStates reducer(AppStates prev, dynamic action) {
     prev.startFormVisible = !prev.startFormVisible;
     prev.markerVisible = !prev.markerVisible;
   } else if (action is MarkPoint) {
+    var randomID  = Random().nextInt(500).toString();
     action.geolocator.getCurrentPosition().then((value) {
       prev.markers.add(Marker(
-        markerId: MarkerId(Random().nextInt(500).toString()),
+        markerId: MarkerId(randomID),
         position: LatLng(value.latitude, value.longitude),
         infoWindow: InfoWindow(
           title: action.name,
@@ -53,7 +61,13 @@ AppStates reducer(AppStates prev, dynamic action) {
         icon: BitmapDescriptor.defaultMarker,
       ));
 
-      prev.marcers.add([value.latitude, value.longitude]);
+      prev.marcers.add({
+        'markerId': MarkerId(randomID),
+        'position': LatLng(value.latitude, value.longitude),
+        'title': action.name,
+        'address': action.currentAddress,
+        // [value.latitude, value.longitude]
+      });
     });
     prev.markerFormVisible = !prev.markerFormVisible;
     prev.markerVisible = !prev.markerFormVisible;
@@ -103,6 +117,8 @@ AppStates reducer(AppStates prev, dynamic action) {
     prev.polylines.add(polyline);
   } else if (action is Extraz) {
     prev.extrasVisible = !prev.extrasVisible;
+  } else if (action is Floats) {
+    prev.floatsVisible = !prev.floatsVisible;
   } else if (action is Starter) {
     prev.startVisible = !prev.startVisible;
     prev.stopVisible = !prev.stopVisible;

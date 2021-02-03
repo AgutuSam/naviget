@@ -1,13 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:naviget/shared/buddyShares.dart';
+import 'package:naviget/auth/auth.dart';
 import 'package:naviget/shared/buddyView.dart';
 import 'package:naviget/shared/team.dart';
 
 class BuddiesList extends StatefulWidget {
   const BuddiesList({
+    this.auth,
     Key key,
   }) : super(key: key);
-
+  final BaseAuth auth;
   @override
   _BuddiesListState createState() => _BuddiesListState();
 }
@@ -15,17 +18,53 @@ class BuddiesList extends StatefulWidget {
 class _BuddiesListState extends State<BuddiesList>
     with TickerProviderStateMixin {
   AnimationController animationController;
+  final CollectionReference userColl =
+      FirebaseFirestore.instance.collection('Shared');
+  User auser;
+  List<Team> theTeam;
+
+  user() async {
+    final User thisuser = await widget.auth.currentUser();
+    setState(() {
+      auser = thisuser;
+    });
+  }
 
   @override
   void initState() {
+    user();
+    theTeam = [];
     animationController = AnimationController(
         duration: const Duration(milliseconds: 2000), vsync: this);
     super.initState();
   }
 
-  Future<bool> getData() async {
+  Future<List> getData() async {
+    List<Team> _data = [];
+    userColl
+        .where('Reciever', isEqualTo: auser.email.toString())
+        .get()
+        .then((value) {
+      var _tabList = value.docs.asMap().entries.map((widget) {
+        return widget.key;
+      }).toList();
+      Map prods = value.docs.asMap();
+      print('****************************');
+      print(_tabList);
+      print(_tabList.toString());
+      print('****************************');
+      for (int i = 0; i < _tabList.length; i++) {
+        _data.add(Team(
+            name: '${prods[_tabList[i]]['Sender']}',
+            org: '${prods[_tabList[i]]['Address']}'));
+      }
+      setState(() {
+        theTeam = _data;
+      });
+    });
     await Future<dynamic>.delayed(const Duration(milliseconds: 50));
-    return true;
+
+    return _data;
   }
 
   @override
@@ -50,7 +89,7 @@ class _BuddiesListState extends State<BuddiesList>
       body: Padding(
         padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
         child: SingleChildScrollView(
-          child: FutureBuilder<bool>(
+          child: FutureBuilder<List>(
             future: getData(),
             builder: (BuildContext context, AsyncSnapshot snapshot) {
               if (!snapshot.hasData) {
@@ -66,9 +105,9 @@ class _BuddiesListState extends State<BuddiesList>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: List<Widget>.generate(
-                        Team.teamList.length,
+                        theTeam.length,
                         (int index) {
-                          final int count = Team.teamList.length;
+                          final int count = theTeam.length;
                           final Animation<double> animation =
                               Tween<double>(begin: 0.0, end: 1.0).animate(
                             CurvedAnimation(
@@ -79,9 +118,10 @@ class _BuddiesListState extends State<BuddiesList>
                           );
                           animationController.forward();
                           return BuddyView(
-                            teamMember: Team.teamList[index],
+                            teamMember: theTeam[index],
                             animation: animation,
                             animationController: animationController,
+                            auth: widget.auth,
                           );
                         },
                       ),

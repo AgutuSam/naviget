@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:naviget/shared/buddyShares.dart';
 import 'package:naviget/shared/team.dart';
+import 'package:naviget/auth/auth.dart';
 
 class BuddyView extends StatelessWidget {
   const BuddyView({
@@ -10,9 +11,11 @@ class BuddyView extends StatelessWidget {
     this.teamMember,
     this.animationController,
     this.animation,
+    this.auth,
   }) : super(key: key);
 
   final Team teamMember;
+  final BaseAuth auth;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 
@@ -40,8 +43,12 @@ class BuddyView extends StatelessWidget {
                 child: InkWell(
                   splashColor: Colors.transparent,
                   onTap: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => Bud()));
+                    // Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //         builder: (context) => Bud(
+                    //               auth: auth,
+                    //             )));
                   },
                   child: SizedBox(
                     width: 280,
@@ -80,7 +87,7 @@ class BuddyView extends StatelessWidget {
                                                   textAlign: TextAlign.left,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.w600,
-                                                    fontSize: 20,
+                                                    fontSize: 12,
                                                     letterSpacing: 0.27,
                                                     color: Colors.black38,
                                                   ),
@@ -133,12 +140,12 @@ class BuddyView extends StatelessWidget {
                                                       CrossAxisAlignment.start,
                                                   children: <Widget>[
                                                     Text(
-                                                      '${teamMember.org}',
+                                                      teamMember.org,
                                                       textAlign: TextAlign.left,
                                                       style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.w600,
-                                                        fontSize: 18,
+                                                        fontSize: 8,
                                                         letterSpacing: 0.27,
                                                         color:
                                                             Colors.blueAccent,
@@ -163,8 +170,8 @@ class BuddyView extends StatelessWidget {
                             padding:
                                 EdgeInsets.only(left: 16, right: 2, top: 20),
                             child: Container(
-                              width: 90,
-                              height: 90,
+                              width: 70,
+                              height: 70,
                               decoration: BoxDecoration(
                                 borderRadius: const BorderRadius.only(
                                     topLeft: Radius.circular(8.0),

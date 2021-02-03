@@ -22,6 +22,7 @@ class AppStates {
     this.polylineCoordinates,
     this.positionStreamSubscription,
     this.extrasVisible,
+    this.floatsVisible,
     this.markerVisible,
     this.startVisible,
     this.stopVisible,
@@ -41,6 +42,7 @@ class AppStates {
         markers: {},
         polylineCoordinates: [],
         extrasVisible: false,
+        floatsVisible: false,
         markerVisible: false,
         startVisible: true,
         stopVisible: false,
@@ -53,7 +55,7 @@ class AppStates {
   Position currentPosition;
   String currentAddress;
   List<List> latLangs = [];
-  List<List> marcers = [];
+  List<Map> marcers = [];
   String startAddress = '';
   String destinationAddress = '';
   String placeDistance;
@@ -64,6 +66,7 @@ class AppStates {
   List<LatLng> polylineCoordinates = [];
   StreamSubscription<Position> positionStreamSubscription;
   bool extrasVisible;
+  bool floatsVisible;
   bool markerVisible;
   bool startVisible;
   bool stopVisible;
