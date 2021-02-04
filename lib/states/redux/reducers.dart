@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -10,7 +9,8 @@ import 'package:naviget/states/redux/actions.dart';
 
 AppStates reducer(AppStates prev, dynamic action) {
   if (action is StartMarking) {
-    var randomID  = Random().nextInt(500).toString();
+    var randomID = Random().nextInt(500).toString();
+    prev.polyID = PolylineId(DateTime.now().toString());
     action.geolocator.getCurrentPosition().then((value) {
       prev.markers.add(Marker(
         markerId: MarkerId(randomID),
@@ -22,24 +22,26 @@ AppStates reducer(AppStates prev, dynamic action) {
         icon: BitmapDescriptor.defaultMarker,
       ));
 
-      prev.marcers.add({
-        'markerId': MarkerId(randomID),
-        'position': LatLng(value.latitude, value.longitude),
-        'title': action.name,
-        'address': action.currentAddress,
-        // [value.latitude, value.longitude]
-      });
+      prev.marcers.add([
+        {
+          'name': action.name,
+          'mkID': randomID,
+          'address': action.currentAddress,
+          'lat': value.latitude,
+          'long': value.longitude
+        }
+      ]);
     });
-    action.geolocator
+    prev.getPositionSubscription = action.geolocator
         .getPositionStream(
             LocationOptions(distanceFilter: 1, timeInterval: 3000))
         .listen((Position position) {
       prev.polylineCoordinates
           .add(LatLng(position.latitude, position.longitude));
       prev.latLangs.add([position.latitude, position.longitude]);
-      PolylineId id = PolylineId('poly');
+
       Polyline polyline = Polyline(
-        polylineId: id,
+        polylineId: prev.polyID,
         color: Colors.red,
         points: prev.polylineCoordinates,
         width: 3,
@@ -49,7 +51,7 @@ AppStates reducer(AppStates prev, dynamic action) {
     prev.startFormVisible = !prev.startFormVisible;
     prev.markerVisible = !prev.markerVisible;
   } else if (action is MarkPoint) {
-    var randomID  = Random().nextInt(500).toString();
+    var randomID = Random().nextInt(500).toString();
     action.geolocator.getCurrentPosition().then((value) {
       prev.markers.add(Marker(
         markerId: MarkerId(randomID),
@@ -61,60 +63,174 @@ AppStates reducer(AppStates prev, dynamic action) {
         icon: BitmapDescriptor.defaultMarker,
       ));
 
-      prev.marcers.add({
-        'markerId': MarkerId(randomID),
-        'position': LatLng(value.latitude, value.longitude),
-        'title': action.name,
-        'address': action.currentAddress,
-        // [value.latitude, value.longitude]
-      });
+      prev.marcers.add([
+        {
+          'name': action.name,
+          'mkID': randomID,
+          'address': action.currentAddress,
+          'lat': value.latitude,
+          'long': value.longitude
+        }
+      ]);
     });
     prev.markerFormVisible = !prev.markerFormVisible;
     prev.markerVisible = !prev.markerFormVisible;
   } else if (action is StopMarking) {
-    action.auth.currentUser().then((user) {
-      action.databaseMapReference
-          .doc(user.uid)
-          .get()
-          .then((DocumentSnapshot documentSnapshot) {
-        if (!documentSnapshot.exists) {
-          List pol = prev.latLangs.asMap().entries.map((widget) {
-            return {widget.key.toString(): widget.value};
-          }).toList();
-
-          List mac = prev.marcers.asMap().entries.map((widget) {
-            return {widget.key.toString(): widget.value};
-          }).toList();
-          action.databaseMapReference.doc(user.uid).set({
-            'Date': DateTime.now(),
-            action.mapName: {
-              'Polies': pol,
-              'Markers': mac,
-              'User': user.uid,
-              'UserName': user.displayName ?? null,
-              'UserEmail': user.email,
-            }
-          });
-        }
-      });
-    });
-    Navigator.pop(action.context);
     showDialog(
         context: action.context,
         builder: (BuildContext context) {
-          return BeautifulAlertDialog(
-            'Map has been added successfully!',
+          return Form(
+            key: action.mapformKey,
+            child: AlertDialog(
+              title: Text('Map Name'),
+              content: Container(
+                height: MediaQuery.of(context).size.height * 0.2,
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Point Name cannot be Null!';
+                          }
+                          return null;
+                        },
+                        style: TextStyle(color: Colors.blue),
+                        controller: action.pointName,
+                        decoration: new InputDecoration(
+                          prefixIcon: Icon(Icons.not_listed_location),
+                          labelText: 'Point Name',
+                          filled: true,
+                          fillColor: Colors.white,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.all(15),
+                          hintText: 'Custom point name!',
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: TextFormField(
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Name cannot be Null!';
+                          }
+                          return null;
+                        },
+                        style: TextStyle(color: Colors.blue),
+                        controller: action.mapName,
+                        decoration: new InputDecoration(
+                          prefixIcon: Icon(Icons.map_outlined),
+                          labelText: 'Map Name',
+                          filled: true,
+                          fillColor: Colors.white,
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
+                            borderSide: BorderSide(
+                              color: Colors.black54,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.all(15),
+                          hintText: 'Custom map name!',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                MaterialButton(
+                  onPressed: () async {
+                    final formState = action.mapformKey.currentState;
+                    // if (formState.validate()) {
+                    try {
+                      List pol = prev.latLangs.asMap().entries.map((widget) {
+                        return {widget.key.toString(): widget.value};
+                      }).toList();
+
+                      String randomID = Random().nextInt(500).toString();
+                      action.geolocator.getCurrentPosition().then((value) {
+                        prev.marcers.add([
+                          {
+                            'name': action.pointName.text,
+                            'mkID': randomID,
+                            'address': action.currentAddress,
+                            'lat': value.latitude,
+                            'long': value.longitude
+                          }
+                        ]);
+                      });
+                      List mac = prev.marcers.asMap().entries.map((widget) {
+                        return {widget.key.toString(): widget.value};
+                      }).toList();
+                      action.databaseMapReference.add({
+                        action.mapName.text: {
+                          'Polies': pol,
+                          'Markers': mac,
+                          'User': action.auser.uid,
+                          'UserName': action.auser.displayName,
+                          'UserEmail': action.auser.email,
+                        }
+                      });
+                      prev.getPositionSubscription?.cancel();
+                      Navigator.pop(context);
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return BeautifulAlertDialog(
+                              'Map has been added successfully!',
+                            );
+                          });
+                    } catch (e) {
+                      e.message != null
+                          ? showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return BeautifulAlertDialog(e.message);
+                              })
+                          : print('e.message is null');
+                      // print(e.message);
+                    }
+                    // }
+                  },
+                  child: Text('Submit',
+                      style: TextStyle(color: Colors.blue, fontSize: 22)),
+                  elevation: 5.0,
+                ),
+              ],
+            ),
           );
         });
-
-    PolylineId id = PolylineId('poly');
-    Polyline polyline = Polyline(
-      polylineId: id,
-      color: Colors.red,
-      points: prev.polylineCoordinates,
-      width: 3,
-    );
-    prev.polylines.add(polyline);
   } else if (action is Extraz) {
     prev.extrasVisible = !prev.extrasVisible;
   } else if (action is Floats) {

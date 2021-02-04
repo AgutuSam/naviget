@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter/widgets.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:naviget/auth/auth.dart';
@@ -42,15 +44,29 @@ class MarkPoint {
 
 class StopMarking {
   StopMarking({
+    this.currentAddress,
+    this.mapformKey,
+    this.myMarcers,
+    this.pointName,
+    this.geolocator,
+    this.myPollies,
     this.auth,
+    this.auser,
     this.context,
     this.databaseMapReference,
     this.mapName,
   });
+  final User auser;
+  final List<List> myMarcers;
+  final String currentAddress;
+  final TextEditingController pointName;
+  final Geolocator geolocator;
+  final List<List> myPollies;
   final BuildContext context;
-  final String mapName;
+  final TextEditingController mapName;
   final CollectionReference databaseMapReference;
   final BaseAuth auth;
+  final GlobalKey mapformKey;
 }
 
 class SaveMap {}

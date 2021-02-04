@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -386,7 +385,22 @@ class _MapViewState extends State<MapView> {
         icon: BitmapDescriptor.defaultMarker,
       ));
 
-      // marcers.add([value.latitude, value.longitude]);
+      String randomID = Random().nextInt(500).toString();
+      marcers.add(
+          // 'markerId': MarkerId(randomID),
+          // 'position':
+          //     LatLng(value.latitude, value.longitude),
+          // 'title': pointName.text,
+          // 'address': _currentAddress,
+          [
+            {
+              'name': pointName.text,
+              'mkID': randomID,
+              'address': _currentAddress,
+              'lat': value.latitude,
+              'long': value.longitude
+            }
+          ]);
     });
   }
 
@@ -404,7 +418,7 @@ class _MapViewState extends State<MapView> {
     // initState();
   }
 
-  saveMap(List<List> myPollies, List<Map> myMarcers) {
+  saveMap(List<List> myPollies, List<List> myMarcers) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -503,44 +517,41 @@ class _MapViewState extends State<MapView> {
                     final formState = _mapformKey.currentState;
                     if (formState.validate()) {
                       try {
-                        widget.auth.currentUser().then((user) {
-                          databaseMapReference
-                              .doc(user.uid)
-                              .get()
-                              .then((DocumentSnapshot documentSnapshot) {
-                            if (!documentSnapshot.exists) {
-                              List pol =
-                                  myPollies.asMap().entries.map((widget) {
-                                return {widget.key.toString(): widget.value};
-                              }).toList();
+                        List pol = myPollies.asMap().entries.map((widget) {
+                          return {widget.key.toString(): widget.value};
+                        }).toList();
 
-                              List mac =
-                                  myMarcers.asMap().entries.map((widget) {
-                                return {widget.key.toString(): widget.value};
-                              }).toList();
-                              var randomID = Random().nextInt(500).toString();
-                              _geolocator.getCurrentPosition().then((value) {
-                                myMarcers.add({
-                                  'markerId': MarkerId(randomID),
-                                  'position':
-                                      LatLng(value.latitude, value.longitude),
-                                  'title': pointName.text,
+                        String randomID = Random().nextInt(500).toString();
+                        _geolocator.getCurrentPosition().then((value) {
+                          myMarcers.add(
+                              // 'markerId': MarkerId(randomID),
+                              // 'position':
+                              //     LatLng(value.latitude, value.longitude),
+                              // 'title': pointName.text,
+                              // 'address': _currentAddress,
+                              [
+                                {
+                                  'name': pointName.text,
+                                  'mkID': randomID,
                                   'address': _currentAddress,
-                                  // [value.latitude, value.longitude]
-                                });
-                              });
-                              databaseMapReference.doc(user.uid).set({
-                                mapName.text: {
-                                  'Polies': pol,
-                                  'Markers': myMarcers,
-                                  'User': user.uid,
-                                  'UserName': user.displayName,
-                                  'UserEmail': user.email,
+                                  'lat': value.latitude,
+                                  'long': value.longitude
                                 }
-                              });
-                            }
-                          });
+                              ]);
                         });
+                        List mac = myMarcers.asMap().entries.map((widget) {
+                          return {widget.key.toString(): widget.value};
+                        }).toList();
+                        databaseMapReference.add({
+                          mapName.text: {
+                            'Polies': pol,
+                            'Markers': mac,
+                            'User': auser.uid,
+                            'UserName': auser.displayName,
+                            'UserEmail': auser.email,
+                          }
+                        });
+
                         Navigator.pop(context);
                         showDialog(
                             context: context,
@@ -737,7 +748,8 @@ class _MapViewState extends State<MapView> {
                     zoomGesturesEnabled: true,
                     zoomControlsEnabled: false,
                     indoorViewEnabled: true,
-                    polylines: store.state.polylines,
+                    // polylines: [store.state.polylines],
+                    polylines: Set<Polyline>.of(store.state.polylines),
                     onMapCreated: (GoogleMapController controller) {
                       mapController = controller;
                     },
@@ -1105,11 +1117,28 @@ class _MapViewState extends State<MapView> {
                                                         // myPolylines =
                                                         //     polylineCoordinates;
                                                         // stopMarking(latLangs);
-                                                        saveMap(
-                                                            store
-                                                                .state.latLangs,
-                                                            store
-                                                                .state.marcers);
+                                                        StoreProvider.of<
+                                                                    AppStates>(
+                                                                context)
+                                                            .dispatch(
+                                                                StopMarking(
+                                                          geolocator:
+                                                              _geolocator,
+                                                          currentAddress:
+                                                              _currentAddress,
+                                                          mapformKey:
+                                                              _mapformKey,
+                                                          pointName: pointName,
+                                                          auser: auser,
+                                                          context: context,
+                                                          mapName: mapName,
+                                                          databaseMapReference:
+                                                              databaseMapReference,
+                                                          myMarcers: store
+                                                              .state.marcers,
+                                                          myPollies: store
+                                                              .state.latLangs,
+                                                        ));
                                                       },
                                                       icon: Icon(
                                                           Icons.accessibility,

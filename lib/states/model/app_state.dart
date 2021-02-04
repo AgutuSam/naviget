@@ -30,6 +30,8 @@ class AppStates {
     this.startFormVisible,
     this.circles,
     this.data,
+    this.polyID,
+    this.getPositionSubscription,
   });
 
   factory AppStates.initial() => AppStates(
@@ -55,7 +57,7 @@ class AppStates {
   Position currentPosition;
   String currentAddress;
   List<List> latLangs = [];
-  List<Map> marcers = [];
+  List<List> marcers = [];
   String startAddress = '';
   String destinationAddress = '';
   String placeDistance;
@@ -74,4 +76,6 @@ class AppStates {
   bool startFormVisible;
   Set<Circle> circles;
   Map<String, dynamic> data;
+  PolylineId polyID;
+  StreamSubscription getPositionSubscription;
 }
