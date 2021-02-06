@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:naviget/auth/auth.dart';
 import 'package:naviget/shared/buddyView.dart';
-import 'package:naviget/shared/team.dart';
+import 'package:naviget/shared/point.dart';
 
 class BuddiesList extends StatefulWidget {
   const BuddiesList({
@@ -21,7 +21,7 @@ class _BuddiesListState extends State<BuddiesList>
   final CollectionReference userColl =
       FirebaseFirestore.instance.collection('Shared');
   User auser;
-  List<Team> theTeam;
+  List<Point> thePoint;
 
   user() async {
     final User thisuser = await widget.auth.currentUser();
@@ -33,14 +33,14 @@ class _BuddiesListState extends State<BuddiesList>
   @override
   void initState() {
     user();
-    theTeam = [];
+    thePoint = [];
     animationController = AnimationController(
         duration: const Duration(milliseconds: 2000), vsync: this);
     super.initState();
   }
 
   Future<List> getData() async {
-    List<Team> _data = [];
+    List<Point> _data = [];
     userColl
         .where('Reciever', isEqualTo: auser.email.toString())
         .get()
@@ -54,12 +54,12 @@ class _BuddiesListState extends State<BuddiesList>
       print(_tabList.toString());
       print('****************************');
       for (int i = 0; i < _tabList.length; i++) {
-        _data.add(Team(
+        _data.add(Point(
             name: '${prods[_tabList[i]]['Sender']}',
             org: '${prods[_tabList[i]]['Address']}'));
       }
       setState(() {
-        theTeam = _data;
+        thePoint = _data;
       });
     });
     await Future<dynamic>.delayed(const Duration(milliseconds: 50));
@@ -105,9 +105,9 @@ class _BuddiesListState extends State<BuddiesList>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: List<Widget>.generate(
-                        theTeam.length,
+                        thePoint.length,
                         (int index) {
-                          final int count = theTeam.length;
+                          final int count = thePoint.length;
                           final Animation<double> animation =
                               Tween<double>(begin: 0.0, end: 1.0).animate(
                             CurvedAnimation(
@@ -118,7 +118,7 @@ class _BuddiesListState extends State<BuddiesList>
                           );
                           animationController.forward();
                           return BuddyView(
-                            teamMember: theTeam[index],
+                            PointMember: thePoint[index],
                             animation: animation,
                             animationController: animationController,
                             auth: widget.auth,

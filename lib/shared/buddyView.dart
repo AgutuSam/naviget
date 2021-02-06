@@ -2,19 +2,19 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:naviget/shared/buddyShares.dart';
-import 'package:naviget/shared/team.dart';
+import 'package:naviget/shared/point.dart';
 import 'package:naviget/auth/auth.dart';
 
 class BuddyView extends StatelessWidget {
   const BuddyView({
     Key key,
-    this.teamMember,
+    this.PointMember,
     this.animationController,
     this.animation,
     this.auth,
   }) : super(key: key);
 
-  final Team teamMember;
+  final Point PointMember;
   final BaseAuth auth;
   final AnimationController animationController;
   final Animation<dynamic> animation;
@@ -83,7 +83,7 @@ class BuddyView extends StatelessWidget {
                                                 padding: const EdgeInsets.only(
                                                     top: 16),
                                                 child: Text(
-                                                  teamMember.name,
+                                                  PointMember.name,
                                                   textAlign: TextAlign.left,
                                                   style: TextStyle(
                                                     fontWeight: FontWeight.w600,
@@ -140,7 +140,7 @@ class BuddyView extends StatelessWidget {
                                                       CrossAxisAlignment.start,
                                                   children: <Widget>[
                                                     Text(
-                                                      teamMember.org,
+                                                      PointMember.org,
                                                       textAlign: TextAlign.left,
                                                       style: TextStyle(
                                                         fontWeight:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:naviget/shared/team.dart';
+import 'package:naviget/routeView.dart';
+import 'package:naviget/shared/point.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:naviget/auth/auth.dart';
@@ -19,7 +20,7 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
   final CollectionReference userColl =
       FirebaseFirestore.instance.collection('Shared');
   User auser;
-  List<Team> theTeam;
+  List<Point> thePoint;
 
   user() async {
     final User thisuser = await widget.auth.currentUser();
@@ -37,7 +38,7 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
   }
 
   Future<List> getData() async {
-    List<Team> _data = [];
+    List<Point> _data = [];
     userColl
         .where('Reciever', isEqualTo: auser.email.toString())
         .get()
@@ -51,12 +52,14 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
       print(_tabList.toString());
       print('****************************');
       for (int i = 0; i < _tabList.length; i++) {
-        _data.add(Team(
+        _data.add(Point(
             name: '${prods[_tabList[i]]['Sender']}',
-            org: '${prods[_tabList[i]]['Address']}'));
+            org: '${prods[_tabList[i]]['Address']}',
+           marker: prods[_tabList[i]]['Marker'],
+            ));
       }
       setState(() {
-        theTeam = _data;
+        thePoint = _data;
       });
     });
     await Future<dynamic>.delayed(const Duration(milliseconds: 200));
@@ -96,9 +99,9 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: List<Widget>.generate(
-                        theTeam.length,
+                        thePoint.length,
                         (int index) {
-                          final int count = theTeam.length;
+                          final int count = thePoint.length;
                           final Animation<double> animation =
                               Tween<double>(begin: 0.0, end: 1.0).animate(
                             CurvedAnimation(
@@ -110,7 +113,8 @@ class _BudState extends State<Bud> with TickerProviderStateMixin {
                           animationController.forward();
                           return ModelView(
                             callback: () {},
-                            modell: theTeam[index],
+                            modell: thePoint[index],
+                            auth: widget.auth,
                             animation: animation,
                             animationController: animationController,
                           );
@@ -132,13 +136,15 @@ class ModelView extends StatelessWidget {
   const ModelView(
       {Key key,
       this.modell,
+      this.auth,
       this.animationController,
       this.animation,
       this.callback})
       : super(key: key);
 
   final VoidCallback callback;
-  final Team modell;
+  final Point modell;
+  final BaseAuth auth;
   final AnimationController animationController;
   final Animation<dynamic> animation;
 
@@ -161,7 +167,10 @@ class ModelView extends StatelessWidget {
                 child: Row(
                   children: <Widget>[
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(context, 
+                        MaterialPageRoute(builder: (context) => RouteView(auth: auth, buddyPoint: modell.marker,),));
+                      },
                       child: Container(
                         padding: EdgeInsets.symmetric(
                             horizontal: 12.0, vertical: 10.0),

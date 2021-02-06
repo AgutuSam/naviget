@@ -157,7 +157,7 @@ class _MapViewState extends State<MapView> {
         //   )
         // ]);
       });
-      await _getAddress();
+      
     }).catchError((e) {
       print(e);
     });
@@ -671,7 +671,9 @@ class _MapViewState extends State<MapView> {
 
   @override
   void initState() {
+
     user();
+    
     data = {'UserType': 'guest'};
     myPolylines = [];
     extrasVisible = false;
@@ -682,6 +684,7 @@ class _MapViewState extends State<MapView> {
     startFormVisible = false;
     super.initState();
     _getCurrentLocation();
+    _getAddress();
     widget.auth.currentUser().then((user) {
       userColl.doc(user.uid).get().then((value) {
         setState(() {
