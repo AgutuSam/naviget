@@ -4,12 +4,14 @@ class Point {
     this.imagePath = '',
     this.title = '',
     this.marker,
+    this.latlng,
     this.org = '',
   });
 
   String name;
   String title;
   List marker;
+  List latlng;
   String org;
   String imagePath;
 

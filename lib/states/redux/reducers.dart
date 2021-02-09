@@ -84,48 +84,9 @@ AppStates reducer(AppStates prev, dynamic action) {
             child: AlertDialog(
               title: Text('Map Name'),
               content: Container(
-                height: MediaQuery.of(context).size.height * 0.2,
+                height: MediaQuery.of(context).size.height * 0.085,
                 child: Column(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(4.0),
-                      child: TextFormField(
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return 'Point Name cannot be Null!';
-                          }
-                          return null;
-                        },
-                        style: TextStyle(color: Colors.blue),
-                        controller: action.pointName,
-                        decoration: new InputDecoration(
-                          prefixIcon: Icon(Icons.not_listed_location),
-                          labelText: 'Point Name',
-                          filled: true,
-                          fillColor: Colors.white,
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            borderSide: BorderSide(
-                              color: Colors.black54,
-                              width: 2,
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                            borderSide: BorderSide(
-                              color: Colors.black54,
-                              width: 2,
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.all(15),
-                          hintText: 'Custom point name!',
-                        ),
-                      ),
-                    ),
                     Padding(
                       padding: const EdgeInsets.all(4.0),
                       child: TextFormField(
@@ -175,26 +136,30 @@ AppStates reducer(AppStates prev, dynamic action) {
                     // if (formState.validate()) {
                     try {
                       List pol = prev.latLangs.asMap().entries.map((widget) {
-                        return {widget.key.toString(): widget.value};
+                        return {
+                          'lat': widget.value.first,
+                          'lng': widget.value.last
+                        };
                       }).toList();
 
-                      String randomID = Random().nextInt(500).toString();
-                      action.geolocator.getCurrentPosition().then((value) {
-                        prev.marcers.add([
-                          {
-                            'name': action.pointName.text,
-                            'mkID': randomID,
-                            'address': action.currentAddress,
-                            'lat': value.latitude,
-                            'long': value.longitude
-                          }
-                        ]);
-                      });
+                      // String randomID = Random().nextInt(500).toString();
+                      // action.geolocator.getCurrentPosition().then((value) {
+                      //   prev.marcers.add([
+                      //     {
+                      //       'name': action.pointName.text,
+                      //       'mkID': randomID,
+                      //       'address': action.currentAddress,
+                      //       'lat': value.latitude,
+                      //       'long': value.longitude
+                      //     }
+                      //   ]);
+                      // });
                       List mac = prev.marcers.asMap().entries.map((widget) {
-                        return {widget.key.toString(): widget.value};
+                        return widget.value.first;
                       }).toList();
                       action.databaseMapReference.add({
-                        action.mapName.text: {
+                        'map': {
+                          'mapName': action.mapName.text,
                           'Polies': pol,
                           'Markers': mac,
                           'User': action.auser.uid,

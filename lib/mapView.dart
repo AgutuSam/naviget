@@ -67,9 +67,11 @@ class _MapViewState extends State<MapView> {
 
   PolylinePoints polylinePoints;
   Set<Polyline> polylines = {};
+  Map<PolylineId, Polyline> mypolylines = {};
   List<LatLng> myPolylines;
   Set<Marker> markers = {};
   List<LatLng> polylineCoordinates = [];
+  List<LatLng> defPolylineCoordinates;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   StreamSubscription<Position> _positionStreamSubscription;
@@ -157,7 +159,6 @@ class _MapViewState extends State<MapView> {
         //   )
         // ]);
       });
-      
     }).catchError((e) {
       print(e);
     });
@@ -669,13 +670,73 @@ class _MapViewState extends State<MapView> {
     });
   }
 
+  getPolies() {
+    databaseMapReference.get().then((value) {
+      var _tabList = value.docs.asMap().entries.map((widget) {
+        return widget.key;
+      }).toList();
+      Map prods = value.docs.asMap();
+      for (var i = 0; i < _tabList.length; i++) {
+        var pollyList = prods[i]['map.Polies'];
+        defPolylineCoordinates = List.generate(prods[i]['map.Polies'].length,
+            (j) => LatLng(pollyList[j]['lat'], pollyList[j]['lng']));
+
+        var randomID = Random().nextInt(500).toString();
+        PolylineId id = PolylineId('$randomID$i');
+        Polyline polyline = Polyline(
+          polylineId: id,
+          color: Colors.orange,
+          points: defPolylineCoordinates,
+          width: 3,
+        );
+        mypolylines[PolylineId('$randomID$i')] = polyline;
+      }
+    });
+  }
+
+  getMarkerz() {
+    databaseMapReference.get().then((value) {
+      var _tabList = value.docs.asMap().entries.map((widget) {
+        return widget.key;
+      }).toList();
+      Map prods = value.docs.asMap();
+      for (var i = 0; i < _tabList.length; i++) {
+        prods[i]['map.Markers'].forEach((mrk) {
+          print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+          print(mrk.toString());
+          print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
+          markers.add(Marker(
+            markerId: MarkerId('${mrk['mkID']}'),
+            position: LatLng(
+              mrk['lat'],
+              mrk['long'],
+            ),
+            infoWindow: InfoWindow(
+              title: mrk['name'],
+              snippet: mrk['address'],
+            ),
+            icon: BitmapDescriptor.defaultMarker,
+          ));
+        });
+      }
+    });
+  }
+
   @override
   void initState() {
-
     user();
-    
+    // polylines = {};
     data = {'UserType': 'guest'};
     myPolylines = [];
+    mypolylines[PolylineId('myPolly')] = Polyline(
+      polylineId: PolylineId('myPolly'),
+      color: Colors.red,
+      points: [
+        LatLng(-1.3658498474205798, 36.71205283897359),
+        LatLng(-1.3660429115881176, 36.711999194793584)
+      ],
+      width: 3,
+    );
     extrasVisible = false;
     markerVisible = false;
     stopVisible = false;
@@ -683,6 +744,8 @@ class _MapViewState extends State<MapView> {
     markerFormVisible = false;
     startFormVisible = false;
     super.initState();
+    getPolies();
+    getMarkerz();
     _getCurrentLocation();
     _getAddress();
     widget.auth.currentUser().then((user) {
@@ -741,10 +804,14 @@ class _MapViewState extends State<MapView> {
                   return
                       // Map View
                       GoogleMap(
-                    markers: store.state.markers != null
-                        ? store.state.markers
-                        : null,
+                    // markers: store.state.markers != null
+                    //     ? store.state.markers
+                    //     : null,
+                    markers: markers != null ? Set<Marker>.from(markers) : null,
                     initialCameraPosition: _initialLocation,
+                    // initialCameraPosition: CameraPosition(
+                    //     target:
+                    //         LatLng(-1.3658498474205798, 36.712085025481585)),
                     myLocationEnabled: true,
                     myLocationButtonEnabled: false,
                     mapType: MapType.normal,
@@ -752,7 +819,7 @@ class _MapViewState extends State<MapView> {
                     zoomControlsEnabled: false,
                     indoorViewEnabled: true,
                     // polylines: [store.state.polylines],
-                    polylines: Set<Polyline>.of(store.state.polylines),
+                    polylines: Set<Polyline>.of(mypolylines.values),
                     onMapCreated: (GoogleMapController controller) {
                       mapController = controller;
                     },
@@ -1230,6 +1297,9 @@ class _MapViewState extends State<MapView> {
                                   onTap: () {
                                     mapController.animateCamera(
                                       CameraUpdate.newCameraPosition(
+                                        // CameraPosition(
+                                        //   target: LatLng(-1.3658498474205798,
+                                        //       36.712085025481585),
                                         CameraPosition(
                                           target: LatLng(
                                             _currentPosition.latitude,

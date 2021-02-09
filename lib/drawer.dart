@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:naviget/auth/auth.dart';
 import 'package:naviget/auth/signin.dart';
 import 'package:naviget/main.dart';
+import 'package:naviget/routes.dart';
 import 'package:naviget/shared/buddiesList.dart';
 import 'package:naviget/shared/maps.dart';
 import 'package:toast/toast.dart';
@@ -118,7 +119,13 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
           SizedBox(height: 10.0),
           _buildRow(Icons.home, 'Home', context, MyApp()),
           _buildDivider(),
-          _buildRow(Icons.account_circle, 'Profile', context, MyApp()),
+          _buildRow(
+              Icons.search,
+              'Search',
+              context,
+              Routes(
+                auth: widget.auth,
+              )),
           _buildDivider(),
           Visibility(
             visible: data['UserType'] == 'admin',
