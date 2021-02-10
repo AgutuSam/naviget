@@ -807,11 +807,14 @@ class _MapViewState extends State<MapView> {
                     // markers: store.state.markers != null
                     //     ? store.state.markers
                     //     : null,
-                    markers: markers != null ? Set<Marker>.from(markers) : null,
+                    markers: store.state.extrasVisible
+                        ? store.state.markers != null
+                            ? store.state.markers
+                            : null
+                        : markers != null
+                            ? Set<Marker>.from(markers)
+                            : null,
                     initialCameraPosition: _initialLocation,
-                    // initialCameraPosition: CameraPosition(
-                    //     target:
-                    //         LatLng(-1.3658498474205798, 36.712085025481585)),
                     myLocationEnabled: true,
                     myLocationButtonEnabled: false,
                     mapType: MapType.normal,
@@ -819,7 +822,9 @@ class _MapViewState extends State<MapView> {
                     zoomControlsEnabled: false,
                     indoorViewEnabled: true,
                     // polylines: [store.state.polylines],
-                    polylines: Set<Polyline>.of(mypolylines.values),
+                    polylines: store.state.extrasVisible
+                        ? Set<Polyline>.of(store.state.polylines)
+                        : Set<Polyline>.of(mypolylines.values),
                     onMapCreated: (GoogleMapController controller) {
                       mapController = controller;
                     },
