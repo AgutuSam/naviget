@@ -138,9 +138,8 @@ class _RoutesState extends State<Routes> with TickerProviderStateMixin {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => RouteView(
-                                                buddyPoint: [
-                                                  thePoint[index].marker
-                                                ],
+                                                buddyPoint:
+                                                    thePoint[index].marker,
                                               )),
                                     );
                                   },

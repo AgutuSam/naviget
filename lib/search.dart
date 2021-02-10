@@ -55,7 +55,7 @@ class Search extends SearchDelegate {
                       context,
                       MaterialPageRoute(
                           builder: (context) => RouteView(
-                                buddyPoint: [suggestionList[index].marker],
+                                buddyPoint: suggestionList[index].marker,
                               )),
                     );
                   },

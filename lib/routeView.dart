@@ -46,8 +46,6 @@ class _RouteViewState extends State<RouteView> {
   Map<PolylineId, Polyline> polylines = {};
   Set<Marker> markers = {};
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
-
   Set<Circle> circles;
 
   User auser;
@@ -59,7 +57,7 @@ class _RouteViewState extends State<RouteView> {
         .then((Position position) async {
       setState(() {
         _currentPosition = position;
-        print('*******CURRENT POS: $_currentPosition');
+        print('&&*&*&*CURRENT POSITION: $_currentPosition &*&*&*&*&*');
         mapController.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
@@ -106,8 +104,9 @@ class _RouteViewState extends State<RouteView> {
             : startPlacemark[0].position;
         Position destinationCoordinates = destinationPlacemark[0].position;
 
-        print('START COORDINATES: $startCoordinates');
-        print('DESTINATION COORDINATES: $destinationCoordinates');
+        print('<<<<<<<<<<<<<<<START COORDINATES: $startCoordinates');
+        print(
+            '^>>>>>>>>>>>>>>DESTINATION COORDINATES: $destinationCoordinates');
 
         Position _northeastCoordinates;
         Position _southwestCoordinates;
@@ -166,7 +165,8 @@ class _RouteViewState extends State<RouteView> {
 
         setState(() {
           _placeDistance = totalDistance.toStringAsFixed(2);
-          print('DISTANCE: $_placeDistance km');
+          print(
+              '((((((((((((((((()))))))))))))))))))DISTANCE: $_placeDistance km');
         });
 
         return true;
@@ -195,7 +195,7 @@ class _RouteViewState extends State<RouteView> {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         Secrets.API_KEY, // Google Maps API Key
         PointLatLng(value.latitude, value.longitude),
-        PointLatLng(widget.buddyPoint.first, widget.buddyPoint.last),
+        PointLatLng(widget.buddyPoint[0], widget.buddyPoint[1]),
         travelMode: TravelMode.transit,
       );
 
@@ -231,7 +231,7 @@ class _RouteViewState extends State<RouteView> {
       List<Placemark> startp = await _geolocator.placemarkFromCoordinates(
           value.latitude, value.longitude);
       List<Placemark> endp = await _geolocator.placemarkFromCoordinates(
-          widget.buddyPoint.first, widget.buddyPoint.last);
+          widget.buddyPoint[0], widget.buddyPoint[1]);
 
       Placemark start = startp[0];
       Placemark end = endp[0];
@@ -260,8 +260,8 @@ class _RouteViewState extends State<RouteView> {
         Marker(
           markerId: MarkerId('$_endAddress'),
           position: LatLng(
-            widget.buddyPoint.first,
-            widget.buddyPoint.last,
+            widget.buddyPoint[0],
+            widget.buddyPoint[1],
           ),
           infoWindow: InfoWindow(
             title: 'Start',
