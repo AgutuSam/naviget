@@ -324,7 +324,7 @@ class _MapViewState extends State<MapView> {
       Secrets.API_KEY, // Google Maps API Key
       PointLatLng(start.latitude, start.longitude),
       PointLatLng(destination.latitude, destination.longitude),
-      travelMode: TravelMode.transit,
+      travelMode: TravelMode.walking,
     );
 
     if (result.points.isNotEmpty) {
@@ -387,21 +387,15 @@ class _MapViewState extends State<MapView> {
       ));
 
       String randomID = Random().nextInt(500).toString();
-      marcers.add(
-          // 'markerId': MarkerId(randomID),
-          // 'position':
-          //     LatLng(value.latitude, value.longitude),
-          // 'title': pointName.text,
-          // 'address': _currentAddress,
-          [
-            {
-              'name': pointName.text,
-              'mkID': randomID,
-              'address': _currentAddress,
-              'lat': value.latitude,
-              'long': value.longitude
-            }
-          ]);
+      marcers.add([
+        {
+          'name': pointName.text,
+          'mkID': randomID,
+          'address': _currentAddress,
+          'lat': value.latitude,
+          'long': value.longitude
+        }
+      ]);
     });
   }
 

@@ -1,13 +1,9 @@
-import 'dart:async';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:flutter_redux/flutter_redux.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:naviget/auth/auth.dart';
-import 'package:naviget/drawer.dart';
 import 'package:naviget/secrets.dart'; // Stores the Google Maps API Key
 import 'package:naviget/states/model/app_state.dart';
 import 'package:naviget/states/redux/reducers.dart';
@@ -17,10 +13,9 @@ import 'dart:math' show Random, asin, cos, sqrt;
 import 'package:redux/redux.dart';
 
 class RouteView extends StatefulWidget {
-  RouteView({this.buddyPoint, this.auth, this.onSignedOut});
+  RouteView({this.buddyPoint, this.auth});
   final BaseAuth auth;
   final List buddyPoint;
-  final VoidCallback onSignedOut;
   final Store<AppStates> store = Store<AppStates>(
     reducer,
     initialState: AppStates.initial(),
@@ -58,6 +53,8 @@ class _RouteViewState extends State<RouteView> {
       setState(() {
         _currentPosition = position;
         print('&&*&*&*CURRENT POSITION: $_currentPosition &*&*&*&*&*');
+        print('&&*&*&*CURRENT POSITION: ${widget.buddyPoint} &*&*&*&*&*');
+        // print('&&*&*&*CURRENT POSITION: ${widget.buddyPoint[1]} &*&*&*&*&*');
         mapController.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(
@@ -196,81 +193,79 @@ class _RouteViewState extends State<RouteView> {
         Secrets.API_KEY, // Google Maps API Key
         PointLatLng(value.latitude, value.longitude),
         PointLatLng(widget.buddyPoint[0], widget.buddyPoint[1]),
-        travelMode: TravelMode.transit,
+        travelMode: TravelMode.walking,
       );
 
       if (result.points.isNotEmpty) {
         result.points.forEach((PointLatLng point) {
           polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-          print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
-          print(point.latitude.toString());
-          print('&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&');
         });
       }
     });
     PolylineId id = PolylineId('poly');
     Polyline polyline = Polyline(
       polylineId: id,
-      color: Colors.red,
+      color: Colors.blueGrey[800],
       points: polylineCoordinates,
       width: 3,
     );
-    polylines[id] = polyline;
-  }
-
-  void _signedOut() {
-    try {
-      widget.onSignedOut();
-    } catch (e) {
-      print(e.toString());
-    }
+    setState(() {
+      polylines[id] = polyline;
+    });
   }
 
   _setMarkers() async {
-    await _geolocator.getCurrentPosition().then((value) async {
-      List<Placemark> startp = await _geolocator.placemarkFromCoordinates(
-          value.latitude, value.longitude);
-      List<Placemark> endp = await _geolocator.placemarkFromCoordinates(
-          widget.buddyPoint[0], widget.buddyPoint[1]);
+    await _geolocator
+        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+        .then((Position value) async {
+      // List<Placemark> startp = await _geolocator.placemarkFromCoordinates(
+      //     value.latitude, value.longitude);
+      // List<Placemark> endp = await _geolocator.placemarkFromCoordinates(
+      //     widget.buddyPoint[0], widget.buddyPoint[1]);
 
-      Placemark start = startp[0];
-      Placemark end = endp[0];
+      // Placemark start = startp[0];
+      // Placemark end = endp[0];
 
-      String _startAddress =
-          "${start.name}, ${start.locality}, ${start.postalCode}, ${start.country}";
-      String _endAddress =
-          "${end.name}, ${end.locality}, ${end.postalCode}, ${end.country}";
+      // String _startAddress =
+      //     "${start.name}, ${start.locality}, ${start.postalCode}, ${start.country}";
+      // String _endAddress =
+      //     "${end.name}, ${end.locality}, ${end.postalCode}, ${end.country}";
+
+      // print('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO');
+      // print(_startAddress);
+      // print(_endAddress);
+      // print('OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO');
 
       markers.add(
         Marker(
-          markerId: MarkerId('$_startAddress'),
+          markerId: MarkerId(Random().nextInt(500).toString()),
           position: LatLng(
             value.latitude,
             value.longitude,
           ),
           infoWindow: InfoWindow(
             title: 'Start',
-            snippet: _startAddress,
+            snippet: 'Kick Off',
           ),
-          icon: BitmapDescriptor.defaultMarker,
+          icon: BitmapDescriptor.defaultMarkerWithHue(120.0),
         ),
       );
 
       markers.add(
         Marker(
-          markerId: MarkerId('$_endAddress'),
+          markerId: MarkerId(Random().nextInt(500).toString()),
           position: LatLng(
             widget.buddyPoint[0],
             widget.buddyPoint[1],
           ),
           infoWindow: InfoWindow(
-            title: 'Start',
-            snippet: _endAddress,
+            title: 'End',
+            snippet: 'Destination',
           ),
-          icon: BitmapDescriptor.defaultMarker,
+          icon: BitmapDescriptor.defaultMarkerWithHue(210.0),
         ),
       );
-      _calculateDistance(_startAddress, _endAddress);
+      // _calculateDistance(_startAddress, _endAddress);
     });
   }
 
@@ -284,7 +279,6 @@ class _RouteViewState extends State<RouteView> {
   @override
   void initState() {
     user();
-
     super.initState();
     _getCurrentLocation();
     _setMarkers();

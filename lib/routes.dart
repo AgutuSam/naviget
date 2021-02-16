@@ -138,8 +138,9 @@ class _RoutesState extends State<Routes> with TickerProviderStateMixin {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => RouteView(
+                                                auth: widget.auth,
                                                 buddyPoint:
-                                                    thePoint[index].marker,
+                                                    thePoint[index].latlng,
                                               )),
                                     );
                                   },
@@ -148,13 +149,6 @@ class _RoutesState extends State<Routes> with TickerProviderStateMixin {
                                   ),
                                 ),
                               );
-                              // return ModelView(
-                              //   callback: () {},
-                              //   modell: thePoint[index],
-                              //   auth: widget.auth,
-                              //   animation: animation,
-                              //   animationController: animationController,
-                              // );
                             },
                           ),
                         ),

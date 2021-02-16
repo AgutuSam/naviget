@@ -55,6 +55,7 @@ class Search extends SearchDelegate {
                       context,
                       MaterialPageRoute(
                           builder: (context) => RouteView(
+                                auth: auth,
                                 buddyPoint: suggestionList[index].marker,
                               )),
                     );
@@ -94,7 +95,7 @@ class Search extends SearchDelegate {
                       context,
                       MaterialPageRoute(
                           builder: (context) => RouteView(
-                                buddyPoint: [suggestionList[index].marker],
+                                buddyPoint: suggestionList[index].latlng,
                               )),
                     );
                   },
