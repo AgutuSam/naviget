@@ -19,7 +19,7 @@ class _AdminState extends State<Admin> {
       }).toList();
 
       Map prods = value.docs.asMap();
-      List<bool> isSwitched = List.generate(_tabList.length, (index) => false);
+      // List<bool> isSwitched = List.generate(_tabList.length, (index) => false);
       print('****************************');
       print(_tabList);
       print(_tabList.toString());
@@ -62,7 +62,6 @@ class _AdminState extends State<Admin> {
   void initState() {
     tiles = [];
     getDataBody();
-    // TODO: implement initState
     super.initState();
   }
 

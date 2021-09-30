@@ -1,19 +1,20 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:naviget/shared/buddyShares.dart';
 import 'package:naviget/shared/point.dart';
 import 'package:naviget/auth/auth.dart';
 
 class BuddyView extends StatelessWidget {
   const BuddyView({
     Key key,
+    // ignore: non_constant_identifier_names
     this.PointMember,
     this.animationController,
     this.animation,
     this.auth,
   }) : super(key: key);
 
+  // ignore: non_constant_identifier_names
   final Point PointMember;
   final BaseAuth auth;
   final AnimationController animationController;

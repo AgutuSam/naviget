@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:naviget/point_model.dart';
 import 'package:naviget/routeView.dart';
 import 'package:naviget/search.dart';
 import 'package:naviget/shared/point.dart';
@@ -121,15 +120,6 @@ class _RoutesState extends State<Routes> with TickerProviderStateMixin {
                           children: List<Widget>.generate(
                             thePoint.length,
                             (int index) {
-                              final int count = thePoint.length;
-                              final Animation<double> animation =
-                                  Tween<double>(begin: 0.0, end: 1.0).animate(
-                                CurvedAnimation(
-                                  parent: animationController,
-                                  curve: Interval((1 / count) * index, 1.0,
-                                      curve: Curves.fastOutSlowIn),
-                                ),
-                              );
                               animationController.forward();
                               return Card(
                                 child: FlatButton(

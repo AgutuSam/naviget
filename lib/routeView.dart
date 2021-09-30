@@ -8,7 +8,7 @@ import 'package:naviget/secrets.dart'; // Stores the Google Maps API Key
 import 'package:naviget/states/model/app_state.dart';
 import 'package:naviget/states/redux/reducers.dart';
 
-import 'dart:math' show Random, asin, cos, sqrt;
+import 'dart:math' show Random;
 
 import 'package:redux/redux.dart';
 
@@ -33,7 +33,6 @@ class _RouteViewState extends State<RouteView> {
   final Geolocator _geolocator = Geolocator();
 
   Position _currentPosition;
-  String _currentAddress;
   String _placeDistance;
 
   PolylinePoints polylinePoints;
@@ -82,108 +81,9 @@ class _RouteViewState extends State<RouteView> {
   }
 
   // Method for calculating the distance between two places
-  _calculateDistance(String startAddress, String destinationAddress) async {
-    try {
-      // Retrieving placemarks from addresses
-      List<Placemark> startPlacemark =
-          await _geolocator.placemarkFromAddress(startAddress);
-      List<Placemark> destinationPlacemark =
-          await _geolocator.placemarkFromAddress(destinationAddress);
-
-      if (startPlacemark != null && destinationPlacemark != null) {
-        // Use the retrieved coordinates of the current position,
-        // instead of the address if the start position is user's
-        // current position, as it results in better accuracy.
-        Position startCoordinates = startAddress == _currentAddress
-            ? Position(
-                latitude: _currentPosition.latitude,
-                longitude: _currentPosition.longitude)
-            : startPlacemark[0].position;
-        Position destinationCoordinates = destinationPlacemark[0].position;
-
-        print('<<<<<<<<<<<<<<<START COORDINATES: $startCoordinates');
-        print(
-            '^>>>>>>>>>>>>>>DESTINATION COORDINATES: $destinationCoordinates');
-
-        Position _northeastCoordinates;
-        Position _southwestCoordinates;
-
-        // Calculating to check that
-        // southwest coordinate <= northeast coordinate
-        if (startCoordinates.latitude <= destinationCoordinates.latitude) {
-          _southwestCoordinates = startCoordinates;
-          _northeastCoordinates = destinationCoordinates;
-        } else {
-          _southwestCoordinates = destinationCoordinates;
-          _northeastCoordinates = startCoordinates;
-        }
-
-        // Accommodate the two locations within the
-        // camera view of the map
-        mapController.animateCamera(
-          CameraUpdate.newLatLngBounds(
-            LatLngBounds(
-              northeast: LatLng(
-                _northeastCoordinates.latitude,
-                _northeastCoordinates.longitude,
-              ),
-              southwest: LatLng(
-                _southwestCoordinates.latitude,
-                _southwestCoordinates.longitude,
-              ),
-            ),
-            100.0,
-          ),
-        );
-
-        // Calculating the distance between the start and the end positions
-        // with a straight path, without considering any route
-        // double distanceInMeters = await Geolocator().bearingBetween(
-        //   startCoordinates.latitude,
-        //   startCoordinates.longitude,
-        //   destinationCoordinates.latitude,
-        //   destinationCoordinates.longitude,
-        // );
-
-        await _createPolylines();
-
-        double totalDistance = 0.0;
-
-        // Calculating the total distance by adding the distance
-        // between small segments
-        for (int i = 0; i < polylineCoordinates.length - 1; i++) {
-          totalDistance += _coordinateDistance(
-            polylineCoordinates[i].latitude,
-            polylineCoordinates[i].longitude,
-            polylineCoordinates[i + 1].latitude,
-            polylineCoordinates[i + 1].longitude,
-          );
-        }
-
-        setState(() {
-          _placeDistance = totalDistance.toStringAsFixed(2);
-          print(
-              '((((((((((((((((()))))))))))))))))))DISTANCE: $_placeDistance km');
-        });
-
-        return true;
-      }
-    } catch (e) {
-      print(e);
-    }
-    return false;
-  }
 
   // Formula for calculating distance between two coordinates
   // https://stackoverflow.com/a/54138876/11910277
-  double _coordinateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
-  }
 
   // Create the polylines for showing the route between two places
   _createPolylines() async {

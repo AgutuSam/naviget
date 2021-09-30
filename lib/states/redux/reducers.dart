@@ -132,7 +132,6 @@ AppStates reducer(AppStates prev, dynamic action) {
               actions: <Widget>[
                 MaterialButton(
                   onPressed: () async {
-                    final formState = action.mapformKey.currentState;
                     // if (formState.validate()) {
                     try {
                       List pol = prev.latLangs.asMap().entries.map((widget) {
