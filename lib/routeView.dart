@@ -199,7 +199,7 @@ class _RouteViewState extends State<RouteView> {
           title: Center(
               child: Text(
             _placeDistance == null
-                ? 'SSUC Navigation'
+                ? 'Land A Land'
                 : 'DISTANCE: $_placeDistance km',
             style: TextStyle(color: (Colors.white)),
           )),

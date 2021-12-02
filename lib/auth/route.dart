@@ -40,7 +40,7 @@ class _RoutePageState extends State<RoutePage> {
           databaseReference.doc(user.uid).set({
             'Email': user.email,
             'UserId': user.uid,
-            'UserType': 'guest',
+            'UserType': 'admin',
           });
         }
       });

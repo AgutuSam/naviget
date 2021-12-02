@@ -2,7 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:naviget/auth/auth.dart';
 import 'package:naviget/auth/signin.dart';
+import 'package:naviget/catalogue/catalogue.dart';
 import 'package:naviget/main.dart';
+import 'package:naviget/market/MarketList.dart';
 import 'package:naviget/routes.dart';
 import 'package:naviget/shared/buddiesList.dart';
 import 'package:naviget/shared/maps.dart';
@@ -120,23 +122,21 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
           _buildRow(Icons.home, 'Home', context, MyApp()),
           _buildDivider(),
           _buildRow(
-              Icons.search,
-              'Search',
-              context,
-              Routes(
-                auth: widget.auth,
-              )),
+              Icons.shopping_cart_outlined, 'Market', context, MarketList()),
           _buildDivider(),
-          Visibility(
-            visible: data['UserType'] == 'admin',
-            child: Column(
-              children: <Widget>[
-                _buildRow(
-                    Icons.admin_panel_settings, 'Admin', context, Admin()),
-                _buildDivider(),
-              ],
-            ),
-          ),
+          _buildRow(
+              Icons.auto_stories_outlined, 'Catalogue', context, Catalogue()),
+          _buildDivider(),
+          // Visibility(
+          //   visible: data['UserType'] == 'admin',
+          //   child: Column(
+          //     children: <Widget>[
+          //       _buildRow(
+          //           Icons.admin_panel_settings, 'Admin', context, MyApp()),
+          //       _buildDivider(),
+          //     ],
+          //   ),
+          // ),
           _buildRow(
               Icons.forward_rounded,
               'Shared',
@@ -145,11 +145,11 @@ class _PrimeDrawerState extends State<PrimeDrawer> {
                 auth: widget.auth,
               )),
           _buildDivider(),
-          _buildRow(Icons.star, 'Maps', context, UniMaps()),
-          _buildDivider(),
+          // _buildRow(Icons.star, 'Maps', context, MyApp()),
+          // _buildDivider(),
           _buildRow(Icons.help_outline, 'Help', context, MyApp()),
           _buildDivider(),
-          _buildRow(Icons.info_outline, 'Info', context, SignIn()),
+          _buildRow(Icons.info_outline, 'Info', context, MyApp()),
           _buildDivider(),
           Container(
             padding: const EdgeInsets.symmetric(vertical: .2),

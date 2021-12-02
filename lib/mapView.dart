@@ -32,7 +32,8 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   _MapViewState({this.store});
   final Store<AppStates> store;
-  CameraPosition _initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
+  CameraPosition _initialLocation =
+      CameraPosition(target: LatLng(-1.286389, 36.817223));
   GoogleMapController mapController;
 
   final CollectionReference databaseMapReference =
@@ -150,8 +151,8 @@ class _MapViewState extends State<MapView> {
     polylineCoordinates
         .add(LatLng(_currentPosition.latitude, _currentPosition.longitude));
     _geolocator
-        .getPositionStream(
-            LocationOptions(distanceFilter: 1, timeInterval: 3000))
+        .getPositionStream(LocationOptions(
+            distanceFilter: 1, timeInterval: 3000)) // 1 meter and 3 seconds
         .listen((Position position) {
       polylineCoordinates.add(LatLng(position.latitude, position.longitude));
       // latLangs.add([position.latitude, position.longitude]);
@@ -512,17 +513,17 @@ class _MapViewState extends State<MapView> {
   void initState() {
     user();
     // polylines = {};
-    data = {'UserType': 'guest'};
+    data = {'UserType': 'admin'};
     myPolylines = [];
-    mypolylines[PolylineId('myPolly')] = Polyline(
-      polylineId: PolylineId('myPolly'),
-      color: Colors.red,
-      points: [
-        LatLng(-1.3658498474205798, 36.71205283897359),
-        LatLng(-1.3660429115881176, 36.711999194793584)
-      ],
-      width: 3,
-    );
+    // mypolylines[PolylineId('myPolly')] = Polyline(
+    //   polylineId: PolylineId('myPolly'),
+    //   color: Colors.red,
+    //   points: [
+    //     LatLng(-1.3658498474205798, 36.71205283897359),
+    //     LatLng(-1.3660429115881176, 36.711999194793584)
+    //   ],
+    //   width: 3,
+    // );
     extrasVisible = false;
     markerVisible = false;
     stopVisible = false;
@@ -558,7 +559,7 @@ class _MapViewState extends State<MapView> {
             backgroundColor: Color(0xFF000050),
             title: Center(
                 child: Text(
-              'SSUC Navigation',
+              'Land A Land',
               style: TextStyle(color: (Colors.white)),
             )),
             actions: <Widget>[
@@ -566,16 +567,12 @@ class _MapViewState extends State<MapView> {
                 converter: (Store<AppStates> store) =>
                     store.state.extrasVisible,
                 builder: (BuildContext context, bool extrasVisible) {
-                  return Visibility(
-                    visible: data['UserType'] == 'admin' ? true : false,
-                    child: IconButton(
-                        icon: Icon(Icons.map),
-                        color: Colors.white,
-                        onPressed: () {
-                          StoreProvider.of<AppStates>(context)
-                              .dispatch(Extraz());
-                        }),
-                  );
+                  return IconButton(
+                      icon: Icon(Icons.map),
+                      color: Colors.white,
+                      onPressed: () {
+                        StoreProvider.of<AppStates>(context).dispatch(Extraz());
+                      });
                 },
               ),
             ],
@@ -1025,90 +1022,7 @@ class _MapViewState extends State<MapView> {
                   },
                 ),
               ),
-              StoreConnector<AppStates, bool>(
-                  converter: (Store<AppStates> store) =>
-                      store.state.floatsVisible,
-                  builder: (BuildContext context, bool floatsVisible) {
-                    return Visibility(
-                      visible: store.state.floatsVisible,
-                      child: SafeArea(
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                right: 10.0, bottom: 150.0),
-                            child: ClipOval(
-                              child: Material(
-                                color: Colors.orange[100], // button color
-                                child: InkWell(
-                                  splashColor: Colors.orange, // inkwell color
-                                  child: SizedBox(
-                                    width: 56,
-                                    height: 56,
-                                    child: Icon(Icons.reply),
-                                  ),
-                                  onTap: () {
-                                    _geolocator
-                                        .getCurrentPosition()
-                                        .then((value) {
-                                      sendLoc([value.latitude, value.longitude],
-                                          _currentAddress);
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-              StoreConnector<AppStates, bool>(
-                  converter: (Store<AppStates> store) =>
-                      store.state.floatsVisible,
-                  builder: (BuildContext context, bool floatsVisible) {
-                    return Visibility(
-                      visible: store.state.floatsVisible,
-                      child: SafeArea(
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                right: 10.0, bottom: 80.0),
-                            child: ClipOval(
-                              child: Material(
-                                color: Colors.orange[100], // button color
-                                child: InkWell(
-                                  splashColor: Colors.orange, // inkwell color
-                                  child: SizedBox(
-                                    width: 56,
-                                    height: 56,
-                                    child: Icon(Icons.my_location),
-                                  ),
-                                  onTap: () {
-                                    mapController.animateCamera(
-                                      CameraUpdate.newCameraPosition(
-                                        // CameraPosition(
-                                        //   target: LatLng(-1.3658498474205798,
-                                        //       36.712085025481585),
-                                        CameraPosition(
-                                          target: LatLng(
-                                            _currentPosition.latitude,
-                                            _currentPosition.longitude,
-                                          ),
-                                          zoom: 18.0,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
+
               // Show current location button
               StoreConnector<AppStates, bool>(
                   converter: (Store<AppStates> store) =>
@@ -1119,7 +1033,7 @@ class _MapViewState extends State<MapView> {
                         alignment: Alignment.bottomRight,
                         child: Padding(
                           padding:
-                              const EdgeInsets.only(right: 10.0, bottom: 10.0),
+                              const EdgeInsets.only(right: 10.0, bottom: 80.0),
                           child: ClipOval(
                             child: Material(
                               color: Colors.orange[100], // button color
@@ -1128,11 +1042,23 @@ class _MapViewState extends State<MapView> {
                                 child: SizedBox(
                                   width: 56,
                                   height: 56,
-                                  child: Icon(Icons.add),
+                                  child: Icon(Icons.my_location),
                                 ),
                                 onTap: () {
-                                  StoreProvider.of<AppStates>(context)
-                                      .dispatch(Floats());
+                                  mapController.animateCamera(
+                                    CameraUpdate.newCameraPosition(
+                                      // CameraPosition(
+                                      //   target: LatLng(-1.3658498474205798,
+                                      //       36.712085025481585),
+                                      CameraPosition(
+                                        target: LatLng(
+                                          _currentPosition.latitude,
+                                          _currentPosition.longitude,
+                                        ),
+                                        zoom: 18.0,
+                                      ),
+                                    ),
+                                  );
                                 },
                               ),
                             ),

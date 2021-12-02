@@ -38,7 +38,7 @@ class AppStates {
   });
 
   factory AppStates.initial() => AppStates(
-        initialLocation: CameraPosition(target: LatLng(0.0, 0.0)),
+        initialLocation: CameraPosition(target: LatLng(-1.286389, 36.817223)),
         latLangs: [],
         marcers: [],
         startAddress: '',
@@ -55,7 +55,8 @@ class AppStates {
         startFormVisible: false,
       );
 
-  CameraPosition initialLocation = CameraPosition(target: LatLng(0.0, 0.0));
+  CameraPosition initialLocation =
+      CameraPosition(target: LatLng(-1.286389, 36.817223));
   GoogleMapController mapController;
   Position currentPosition;
   String currentAddress;
