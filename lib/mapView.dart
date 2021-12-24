@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -43,12 +45,12 @@ class _MapViewState extends State<MapView> {
   final CollectionReference userShared =
       FirebaseFirestore.instance.collection('Shared');
 
-  final Geolocator _geolocator = Geolocator();
-
   Position _currentPosition;
   String _currentAddress;
   List<List> latLangs = [];
   List<List> marcers = [];
+
+  final Geolocator _geolocator = Geolocator();
 
   final startAddressController = TextEditingController();
   final destinationAddressController = TextEditingController();
@@ -62,8 +64,12 @@ class _MapViewState extends State<MapView> {
 
   PolylinePoints polylinePoints;
   Set<Polyline> polylines = {};
+  Set<Polygon> polygons = {};
+  Set<Polygon> _polygons = HashSet<Polygon>();
   Map<PolylineId, Polyline> mypolylines = {};
+  Map<PolygonId, Polygon> mypolygons = {};
   List<LatLng> myPolylines;
+  List<LatLng> myPolygons;
   Set<Marker> markers = {};
   List<LatLng> polylineCoordinates = [];
   List<LatLng> defPolylineCoordinates;
@@ -82,10 +88,32 @@ class _MapViewState extends State<MapView> {
 
   User auser;
 
+  // // DRAW POLYGON // //
+
+  void _setPolygon(List<LatLng> points, Color colorStroke, Color colorFill) {
+    var rand = Random();
+    var randomID = rand.nextInt(10500).toString();
+    final String polygonIdVal = 'polygon_id$randomID';
+
+    print(
+        'POLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGS');
+    _polygons.add(Polygon(
+      polygonId: PolygonId(polygonIdVal),
+      points: points,
+      strokeColor: colorStroke,
+      strokeWidth: 2,
+      fillColor: colorFill,
+      // zIndex: 10,
+    ));
+    print(
+        'POLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGS');
+  }
+
+  // // DRAW POLYGON // //
+
   // Method for retrieving the current location
   _getCurrentLocation() async {
-    await _geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position position) async {
       setState(() {
         _currentPosition = position;
@@ -112,22 +140,22 @@ class _MapViewState extends State<MapView> {
   }
 
   // Method for retrieving the address
-  _getAddress() async {
-    try {
-      List<Placemark> p = await _geolocator.placemarkFromCoordinates(
-          _currentPosition.latitude, _currentPosition.longitude);
+  // _getAddress() async {
+  //   try {
+  //     List<Placemark> p = await _geolocator.placemarkFromCoordinates(
+  //         _currentPosition.latitude, _currentPosition.longitude);
 
-      Placemark place = p[0];
+  //     Placemark place = p[0];
 
-      setState(() {
-        _currentAddress =
-            "${place.name}, ${place.locality}, ${place.postalCode}, ${place.country}";
-        startAddressController.text = _currentAddress;
-      });
-    } catch (e) {
-      print(e);
-    }
-  }
+  //     setState(() {
+  //       _currentAddress =
+  //           "${place.name}, ${place.locality}, ${place.postalCode}, ${place.country}";
+  //       startAddressController.text = _currentAddress;
+  //     });
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   // Method for calculating the distance between two places
 
@@ -150,27 +178,27 @@ class _MapViewState extends State<MapView> {
         : _currentAddress);
     polylineCoordinates
         .add(LatLng(_currentPosition.latitude, _currentPosition.longitude));
-    _geolocator
-        .getPositionStream(LocationOptions(
-            distanceFilter: 1, timeInterval: 3000)) // 1 meter and 3 seconds
-        .listen((Position position) {
-      polylineCoordinates.add(LatLng(position.latitude, position.longitude));
-      // latLangs.add([position.latitude, position.longitude]);
-      PolylineId id = PolylineId('poly');
-      Polyline polyline = Polyline(
-        polylineId: id,
-        color: Colors.red,
-        points: polylineCoordinates,
-        width: 3,
-      );
-      polylines.add(polyline);
-    });
+    // Geolocator
+    //     .getPositionStream(LocationOptions(
+    //         distanceFilter: 1, timeInterval: 3000)) // 1 meter and 3 seconds
+    //     .listen((Position position) {
+    //   polylineCoordinates.add(LatLng(position.latitude, position.longitude));
+    //   // latLangs.add([position.latitude, position.longitude]);
+    //   PolylineId id = PolylineId('poly');
+    //   Polyline polyline = Polyline(
+    //     polylineId: id,
+    //     color: Colors.red,
+    //     points: polylineCoordinates,
+    //     width: 3,
+    //   );
+    //   polylines.add(polyline);
+    // });
   }
 
   markPoint(String name) {
-    _geolocator.getCurrentPosition().then((value) {
+    Geolocator.getCurrentPosition().then((value) {
       markers.add(Marker(
-        markerId: MarkerId(Random().nextInt(500).toString()),
+        markerId: MarkerId(Random().nextInt(10500).toString()),
         position: LatLng(value.latitude, value.longitude),
         infoWindow: InfoWindow(
           title: name,
@@ -179,7 +207,7 @@ class _MapViewState extends State<MapView> {
         icon: BitmapDescriptor.defaultMarker,
       ));
 
-      String randomID = Random().nextInt(500).toString();
+      String randomID = Random().nextInt(10500).toString();
       marcers.add([
         {
           'name': pointName.text,
@@ -309,8 +337,8 @@ class _MapViewState extends State<MapView> {
                           return {widget.key.toString(): widget.value};
                         }).toList();
 
-                        String randomID = Random().nextInt(500).toString();
-                        _geolocator.getCurrentPosition().then((value) {
+                        String randomID = Random().nextInt(10500).toString();
+                        Geolocator.getCurrentPosition().then((value) {
                           myMarcers.add(
                               // 'markerId': MarkerId(randomID),
                               // 'position':
@@ -464,24 +492,60 @@ class _MapViewState extends State<MapView> {
       }).toList();
       Map prods = value.docs.asMap();
       for (var i = 0; i < _tabList.length; i++) {
-        var pollyList = prods[i]['map.Polies'];
-        defPolylineCoordinates = List.generate(prods[i]['map.Polies'].length,
-            (j) => LatLng(pollyList[j]['lat'], pollyList[j]['lng']));
+        // var pollyList = prods[i]['map.Polies'];
+        var pollyList = prods[i]['map.Markers'];
+        defPolylineCoordinates = List.generate(prods[i]['map.Markers'].length,
+            (j) => LatLng(pollyList[j]['lat'], pollyList[j]['long']));
 
-        var randomID = Random().nextInt(500).toString();
+        defPolylineCoordinates
+            .add(LatLng(pollyList[0]['lat'], pollyList[0]['long']));
+
+        print(
+            '8888888888888888888888888888888888888888888888888888888888888888');
+        print(defPolylineCoordinates);
+        print(
+            '8888888888888888888888888888888888888888888888888888888888888888');
+
+        var rand = Random();
+        var randomID = rand.nextInt(10500).toString();
+
+        Color colorStroke = Color.fromARGB(
+          rand.nextInt(160),
+          rand.nextInt(255),
+          rand.nextInt(255),
+          rand.nextInt(255),
+        );
+        Color colorFill = Color.fromARGB(
+          rand.nextInt(155),
+          rand.nextInt(255),
+          rand.nextInt(255),
+          rand.nextInt(255),
+        );
+
+        // // FOR POLYLINES START // //
+
         PolylineId id = PolylineId('$randomID$i');
         Polyline polyline = Polyline(
           polylineId: id,
-          color: Colors.orange,
+          color: colorStroke,
           points: defPolylineCoordinates,
-          width: 3,
+          width: 2,
         );
         mypolylines[PolylineId('$randomID$i')] = polyline;
+
+        // // FOR POLYLINES STOP // //
+
+        _setPolygon(defPolylineCoordinates, colorStroke, colorFill);
       }
     });
   }
 
   getMarkerz() {
+    // _polygons.forEach((val) {
+
+    // val.
+    // });
+
     databaseMapReference.get().then((value) {
       var _tabList = value.docs.asMap().entries.map((widget) {
         return widget.key;
@@ -514,9 +578,19 @@ class _MapViewState extends State<MapView> {
     user();
     // polylines = {};
     data = {'UserType': 'admin'};
-    myPolylines = [];
+    // myPolylines = [];
+    myPolygons = [];
     // mypolylines[PolylineId('myPolly')] = Polyline(
     //   polylineId: PolylineId('myPolly'),
+    //   color: Colors.red,
+    //   points: [
+    //     LatLng(-1.3658498474205798, 36.71205283897359),
+    //     LatLng(-1.3660429115881176, 36.711999194793584)
+    //   ],
+    //   width: 3,
+    // );
+    // mypolygons[PolygonId('myPolly')] = Polygon(
+    //   polygonId: PolygonId('myPolly'),
     //   color: Colors.red,
     //   points: [
     //     LatLng(-1.3658498474205798, 36.71205283897359),
@@ -534,7 +608,7 @@ class _MapViewState extends State<MapView> {
     getPolies();
     getMarkerz();
     _getCurrentLocation();
-    _getAddress();
+    // _getAddress();
     widget.auth.currentUser().then((user) {
       userColl.doc(user.uid).get().then((value) {
         setState(() {
@@ -581,9 +655,9 @@ class _MapViewState extends State<MapView> {
           drawer: PrimeDrawer(auth: widget.auth, onSignedOut: _signedOut),
           body: Stack(
             children: <Widget>[
-              StoreConnector<AppStates, Set<Polyline>>(
-                converter: (Store<AppStates> store) => store.state.polylines,
-                builder: (BuildContext context, Set<Polyline> polylines) {
+              StoreConnector<AppStates, Set<Polygon>>(
+                converter: (Store<AppStates> store) => store.state.polygons,
+                builder: (BuildContext context, Set<Polygon> polygons) {
                   return
                       // Map View
                       GoogleMap(
@@ -608,6 +682,7 @@ class _MapViewState extends State<MapView> {
                     polylines: store.state.extrasVisible
                         ? Set<Polyline>.of(store.state.polylines)
                         : Set<Polyline>.of(mypolylines.values),
+                    polygons: _polygons,
                     onMapCreated: (GoogleMapController controller) {
                       mapController = controller;
                     },
@@ -973,6 +1048,9 @@ class _MapViewState extends State<MapView> {
                                                       color: Colors.blueAccent,
                                                       onPressed: () {
                                                         // myPolylines =
+                                                        //     polylineCoordinates;
+                                                        // stopMarking(latLangs);
+                                                        // myPolygons =
                                                         //     polylineCoordinates;
                                                         // stopMarking(latLangs);
                                                         StoreProvider.of<

@@ -46,8 +46,7 @@ class _RouteViewState extends State<RouteView> {
 
   // Method for retrieving the current location
   _getCurrentLocation() async {
-    await _geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position position) async {
       setState(() {
         _currentPosition = position;
@@ -88,7 +87,7 @@ class _RouteViewState extends State<RouteView> {
   // Create the polylines for showing the route between two places
   _createPolylines() async {
     polylinePoints = PolylinePoints();
-    _geolocator.getCurrentPosition().then((value) async {
+    Geolocator.getCurrentPosition().then((value) async {
       PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
         Secrets.API_KEY, // Google Maps API Key
         PointLatLng(value.latitude, value.longitude),
@@ -115,8 +114,7 @@ class _RouteViewState extends State<RouteView> {
   }
 
   _setMarkers() async {
-    await _geolocator
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
+    await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
         .then((Position value) async {
       // List<Placemark> startp = await _geolocator.placemarkFromCoordinates(
       //     value.latitude, value.longitude);

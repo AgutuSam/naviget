@@ -49,7 +49,7 @@ class BeautifulAlertDialog extends StatelessWidget {
                       children: <Widget>[
                         Expanded(
                           child: RaisedButton(
-                            child: Text("Cancel"),
+                            child: Text("Okay"),
                             color: Colors.red,
                             colorBrightness: Brightness.dark,
                             onPressed: () {

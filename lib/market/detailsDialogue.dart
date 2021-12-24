@@ -5,9 +5,10 @@ import 'package:flare_flutter/flare_actor.dart';
 import 'package:flutter/material.dart';
 
 class DetailDialog extends StatefulWidget {
-  DetailDialog({this.detailId, this.user});
+  DetailDialog({this.detailId, this.user, this.val});
   final detailId;
   final user;
+  final val;
 
   @override
   _DetailDialogState createState() => _DetailDialogState();
@@ -93,28 +94,28 @@ class _DetailDialogState extends State<DetailDialog> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(children: <Widget>[
-                    const Text(
-                      'Map Name',
+                    Text(
+                      'Map Name: ' + widget.val['mapName'] ?? 'Map Name',
                       style: TextStyle(color: Colors.green),
                     ),
                     const Divider(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: const <Widget>[
+                      children: <Widget>[
                         Text(
-                          "Seller",
+                          "Phone",
                           style: label,
                         ),
-                        Text("John Doe", style: label)
+                        Text('Email', style: label)
                       ],
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         // Text(data['Contact']),                                                **SNAPSHOT
-                        Text('CONTACT'),
+                        Text(widget.val['phone']),
                         // Text(data['johndoe@mailme.com']),                                                **SNAPSHOT
-                        Text('johndoe@mailme.com'),
+                        Text(widget.val['email']),
                       ],
                     ),
                     const SizedBox(height: 20.0),
@@ -132,10 +133,10 @@ class _DetailDialogState extends State<DetailDialog> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         // Text(data['End of Karen Rd'] ?? ""),                                                **SNAPSHOT
-                        Text('End of Karen Rd'),
+                        Text(widget.val['address']),
                         SizedBox(width: 10),
                         // Text(data['45 Ha'] ?? ""),                                                **SNAPSHOT
-                        Text('45 Ha'),
+                        Text(widget.val['size'] + widget.val['measure']),
                       ],
                     ),
                     const SizedBox(height: 12.0),
@@ -151,7 +152,7 @@ class _DetailDialogState extends State<DetailDialog> {
                             ),
                             Text(
                               // data["Pending"] ?? '',                                                **SNAPSHOT
-                              "Pending",
+                              widget.val['mapState'],
                             ),
                           ],
                         ),
@@ -164,7 +165,7 @@ class _DetailDialogState extends State<DetailDialog> {
                             ),
                             Text(
                               // data["Kshs. 1,200,000"],                                                **SNAPSHOT
-                              "Kshs. 1,200,000",
+                              'Kshs ' + widget.val['price'],
                             ),
                           ],
                         ),

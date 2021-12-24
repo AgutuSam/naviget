@@ -21,6 +21,8 @@ class AppStates {
     this.polylinePoints,
     this.polylines,
     this.myPolylines,
+    this.polygons,
+    this.myPolygons,
     this.markers,
     this.polylineCoordinates,
     this.positionStreamSubscription,
@@ -44,6 +46,7 @@ class AppStates {
         startAddress: '',
         destinationAddress: '',
         polylines: {},
+        polygons: {},
         markers: {},
         polylineCoordinates: [],
         extrasVisible: false,
@@ -68,6 +71,8 @@ class AppStates {
   PolylinePoints polylinePoints;
   Set<Polyline> polylines = {};
   List<LatLng> myPolylines;
+  Set<Polygon> polygons = {};
+  List<LatLng> myPolygons;
   Set<Marker> markers = {};
   List<LatLng> polylineCoordinates = [];
   StreamSubscription<Position> positionStreamSubscription;

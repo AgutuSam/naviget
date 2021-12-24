@@ -1,19 +1,31 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:naviget/catalogue/detailForm.dart';
 import 'package:naviget/market/detailsDialogue.dart';
 
+// ignore: must_be_immutable
 class ListCard extends StatelessWidget {
   ListCard({
     Key key,
+    this.type,
+    this.docId,
     this.name,
     this.tag,
+    this.image,
     this.chapterNumber,
     this.press,
+    this.val,
   }) : super(key: key);
+  final type;
+  final docId;
   final name;
   final tag;
   final chapterNumber;
   final press;
+  final image;
+  final val;
 
   var auth = FirebaseAuth.instance.currentUser;
 
@@ -33,11 +45,27 @@ class ListCard extends StatelessWidget {
       ),
       child: Row(
         children: <Widget>[
+          image == null
+              ? CircleAvatar(child: Text(chapterNumber.toString()))
+              : CircleAvatar(
+                  backgroundImage: image == null
+                      ? null
+                      : Image.network(
+                          image,
+                          color: Colors.white,
+                          colorBlendMode: BlendMode.darken,
+                          alignment: Alignment.topCenter,
+                          fit: BoxFit.contain,
+                        ).image,
+                ),
+          SizedBox(
+            width: 12,
+          ),
           RichText(
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: "$chapterNumber : $name \n",
+                  text: " $name \n",
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white,
@@ -45,7 +73,7 @@ class ListCard extends StatelessWidget {
                   ),
                 ),
                 TextSpan(
-                  text: tag,
+                  text: tag.toString(),
                   style: TextStyle(
                     color: Colors.white54,
                   ),
@@ -60,11 +88,17 @@ class ListCard extends StatelessWidget {
               size: 18,
               color: Colors.white,
             ),
-            onPressed: () => showDialog(
-                context: context,
-                builder: (context) {
-                  return DetailDialog(detailId: 'Flash', user: auth);
-                }),
+            onPressed: () {
+              showDialog(
+                  context: context,
+                  builder: (context) {
+                    return type == 'pending'
+                        ? DetailForm(detailId: docId, user: auth)
+                        : DetailDialog(
+                            val: val,
+                          );
+                  });
+            },
           )
         ],
       ),

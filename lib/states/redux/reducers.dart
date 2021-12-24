@@ -9,9 +9,9 @@ import 'package:naviget/states/redux/actions.dart';
 
 AppStates reducer(AppStates prev, dynamic action) {
   if (action is StartMarking) {
-    var randomID = Random().nextInt(500).toString();
+    var randomID = Random().nextInt(10500).toString();
     prev.polyID = PolylineId(DateTime.now().toString());
-    action.geolocator.getCurrentPosition().then((value) {
+    Geolocator.getCurrentPosition().then((value) {
       prev.markers.add(Marker(
         markerId: MarkerId(randomID),
         position: LatLng(value.latitude, value.longitude),
@@ -32,10 +32,51 @@ AppStates reducer(AppStates prev, dynamic action) {
         }
       ]);
     });
-    prev.getPositionSubscription = action.geolocator
-        .getPositionStream(
-            LocationOptions(distanceFilter: 1, timeInterval: 3000))
-        .listen((Position position) {
+    // //STREAM POSITION CHANGES START // //
+
+    // prev.getPositionSubscription = action.geolocator
+    //     .getPositionStream(
+    //         LocationOptions(distanceFilter: 1, timeInterval: 3000))
+    //     .listen((Position position) {
+    //   prev.polylineCoordinates
+    //       .add(LatLng(position.latitude, position.longitude));
+    //   prev.latLangs.add([position.latitude, position.longitude]);
+
+    //   Polyline polyline = Polyline(
+    //     polylineId: prev.polyID,
+    //     color: Colors.red,
+    //     points: prev.polylineCoordinates,
+    //     width: 3,
+    //   );
+    //   prev.polylines.add(polyline);
+    // });
+
+    // //STREAM POSITION CHANGES START // //
+    prev.startFormVisible = !prev.startFormVisible;
+    prev.markerVisible = !prev.markerVisible;
+  } else if (action is MarkPoint) {
+    var randomID = Random().nextInt(10500).toString();
+    Geolocator.getCurrentPosition().then((position) {
+      prev.markers.add(Marker(
+        markerId: MarkerId(randomID),
+        position: LatLng(position.latitude, position.longitude),
+        infoWindow: InfoWindow(
+          title: action.name,
+          snippet: action.currentAddress,
+        ),
+        icon: BitmapDescriptor.defaultMarker,
+      ));
+
+      prev.marcers.add([
+        {
+          'name': action.name,
+          'mkID': randomID,
+          'address': action.currentAddress,
+          'lat': position.latitude,
+          'long': position.longitude
+        }
+      ]);
+
       prev.polylineCoordinates
           .add(LatLng(position.latitude, position.longitude));
       prev.latLangs.add([position.latitude, position.longitude]);
@@ -48,34 +89,34 @@ AppStates reducer(AppStates prev, dynamic action) {
       );
       prev.polylines.add(polyline);
     });
-    prev.startFormVisible = !prev.startFormVisible;
-    prev.markerVisible = !prev.markerVisible;
-  } else if (action is MarkPoint) {
-    var randomID = Random().nextInt(500).toString();
-    action.geolocator.getCurrentPosition().then((value) {
-      prev.markers.add(Marker(
-        markerId: MarkerId(randomID),
-        position: LatLng(value.latitude, value.longitude),
-        infoWindow: InfoWindow(
-          title: action.name,
-          snippet: action.currentAddress,
-        ),
-        icon: BitmapDescriptor.defaultMarker,
-      ));
 
-      prev.marcers.add([
-        {
-          'name': action.name,
-          'mkID': randomID,
-          'address': action.currentAddress,
-          'lat': value.latitude,
-          'long': value.longitude
-        }
-      ]);
-    });
     prev.markerFormVisible = !prev.markerFormVisible;
     prev.markerVisible = !prev.markerFormVisible;
   } else if (action is StopMarking) {
+    var randomID = Random().nextInt(10500).toString();
+    Geolocator.getCurrentPosition().then((position) {
+      prev.markers.add(Marker(
+        markerId: MarkerId(randomID),
+        position: LatLng(position.latitude, position.longitude),
+        icon: BitmapDescriptor.defaultMarker,
+      ));
+
+      prev.polylineCoordinates
+          .add(LatLng(position.latitude, position.longitude));
+      prev.latLangs.add([position.latitude, position.longitude]);
+
+      Polyline polyline = Polyline(
+        polylineId: prev.polyID,
+        color: Colors.red,
+        points: prev.polylineCoordinates,
+        width: 3,
+      );
+      prev.polylines.add(polyline);
+    });
+
+    prev.markerFormVisible = !prev.markerFormVisible;
+    prev.markerVisible = !prev.markerFormVisible;
+
     showDialog(
         context: action.context,
         builder: (BuildContext context) {
@@ -134,14 +175,23 @@ AppStates reducer(AppStates prev, dynamic action) {
                   onPressed: () async {
                     // if (formState.validate()) {
                     try {
+                      List mac = prev.marcers.asMap().entries.map((widget) {
+                        return widget.value.first;
+                      }).toList();
+
                       List pol = prev.latLangs.asMap().entries.map((widget) {
                         return {
                           'lat': widget.value.first,
-                          'lng': widget.value.last
+                          'lng': widget.value.first
                         };
                       }).toList();
 
-                      // String randomID = Random().nextInt(500).toString();
+                      pol.add({
+                        'lat': prev.latLangs[0].first,
+                        'lng': prev.latLangs[0].last
+                      });
+
+                      // String randomID = Random().nextInt(10500).toString();
                       // action.geolocator.getCurrentPosition().then((value) {
                       //   prev.marcers.add([
                       //     {
@@ -153,17 +203,17 @@ AppStates reducer(AppStates prev, dynamic action) {
                       //     }
                       //   ]);
                       // });
-                      List mac = prev.marcers.asMap().entries.map((widget) {
-                        return widget.value.first;
-                      }).toList();
+
                       action.databaseMapReference.add({
+                        'mapState': 'pending',
+                        'date': DateTime.now().toString(),
+                        'mapName': action.mapName.text,
+                        'User': action.auser.uid,
+                        'UserName': action.auser.displayName,
+                        'UserEmail': action.auser.email,
                         'map': {
-                          'mapName': action.mapName.text,
                           'Polies': pol,
                           'Markers': mac,
-                          'User': action.auser.uid,
-                          'UserName': action.auser.displayName,
-                          'UserEmail': action.auser.email,
                         }
                       });
                       prev.getPositionSubscription?.cancel();
