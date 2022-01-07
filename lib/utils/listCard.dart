@@ -47,16 +47,36 @@ class ListCard extends StatelessWidget {
         children: <Widget>[
           image == null
               ? CircleAvatar(child: Text(chapterNumber.toString()))
-              : CircleAvatar(
-                  backgroundImage: image == null
-                      ? null
-                      : Image.network(
-                          image,
-                          color: Colors.white,
-                          colorBlendMode: BlendMode.darken,
-                          alignment: Alignment.topCenter,
-                          fit: BoxFit.contain,
-                        ).image,
+              : InkWell(
+                  onTap: () => showDialog(
+                      context: context,
+                      builder: (context) => Card(
+                            semanticContainer: true,
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            child: Image.network(
+                              image,
+                              color: Colors.white,
+                              colorBlendMode: BlendMode.darken,
+                              alignment: Alignment.topCenter,
+                              fit: BoxFit.contain,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            elevation: 5,
+                            margin: EdgeInsets.all(10),
+                          )),
+                  child: CircleAvatar(
+                    backgroundImage: image == null
+                        ? null
+                        : Image.network(
+                            image,
+                            color: Colors.white,
+                            colorBlendMode: BlendMode.darken,
+                            alignment: Alignment.topCenter,
+                            fit: BoxFit.contain,
+                          ).image,
+                  ),
                 ),
           SizedBox(
             width: 12,

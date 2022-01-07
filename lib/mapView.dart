@@ -11,6 +11,7 @@ import 'package:naviget/auth/auth.dart';
 import 'package:naviget/drawer.dart';
 // Stores the Google Maps API Key
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:naviget/market/detailsDialogue.dart';
 import 'package:naviget/states/model/app_state.dart';
 import 'package:naviget/states/redux/actions.dart';
 import 'package:naviget/states/redux/reducers.dart';
@@ -88,9 +89,12 @@ class _MapViewState extends State<MapView> {
 
   User auser;
 
+  BitmapDescriptor pinLocationIcon;
+
   // // DRAW POLYGON // //
 
-  void _setPolygon(List<LatLng> points, Color colorStroke, Color colorFill) {
+  void _setPolygon(
+      List<LatLng> points, Color colorStroke, Color colorFill, Map val) {
     var rand = Random();
     var randomID = rand.nextInt(10500).toString();
     final String polygonIdVal = 'polygon_id$randomID';
@@ -98,13 +102,22 @@ class _MapViewState extends State<MapView> {
     print(
         'POLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGS');
     _polygons.add(Polygon(
-      polygonId: PolygonId(polygonIdVal),
-      points: points,
-      strokeColor: colorStroke,
-      strokeWidth: 2,
-      fillColor: colorFill,
-      // zIndex: 10,
-    ));
+        polygonId: PolygonId(polygonIdVal),
+        points: points,
+        strokeColor: colorStroke,
+        strokeWidth: 2,
+        fillColor: colorFill,
+        onTap: () {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return DetailDialog(
+                  val: val,
+                );
+              });
+        }
+        // zIndex: 10,
+        ));
     print(
         'POLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGSPOLYGONGS');
   }
@@ -510,16 +523,16 @@ class _MapViewState extends State<MapView> {
         var randomID = rand.nextInt(10500).toString();
 
         Color colorStroke = Color.fromARGB(
-          rand.nextInt(160),
           rand.nextInt(255),
-          rand.nextInt(255),
-          rand.nextInt(255),
+          rand.nextInt(85),
+          rand.nextInt(85),
+          rand.nextInt(85),
         );
         Color colorFill = Color.fromARGB(
-          rand.nextInt(155),
-          rand.nextInt(255),
-          rand.nextInt(255),
-          rand.nextInt(255),
+          rand.nextInt(250),
+          rand.nextInt(85),
+          rand.nextInt(85),
+          rand.nextInt(85),
         );
 
         // // FOR POLYLINES START // //
@@ -535,17 +548,12 @@ class _MapViewState extends State<MapView> {
 
         // // FOR POLYLINES STOP // //
 
-        _setPolygon(defPolylineCoordinates, colorStroke, colorFill);
+        _setPolygon(defPolylineCoordinates, colorStroke, colorFill, prods[i]);
       }
     });
   }
 
   getMarkerz() {
-    // _polygons.forEach((val) {
-
-    // val.
-    // });
-
     databaseMapReference.get().then((value) {
       var _tabList = value.docs.asMap().entries.map((widget) {
         return widget.key;
@@ -557,17 +565,25 @@ class _MapViewState extends State<MapView> {
           print(mrk.toString());
           print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%');
           markers.add(Marker(
-            markerId: MarkerId('${mrk['mkID']}'),
-            position: LatLng(
-              mrk['lat'],
-              mrk['long'],
-            ),
-            infoWindow: InfoWindow(
-              title: mrk['name'],
-              snippet: mrk['address'],
-            ),
-            icon: BitmapDescriptor.defaultMarker,
-          ));
+              markerId: MarkerId('${mrk['mkID']}'),
+              position: LatLng(
+                mrk['lat'],
+                mrk['long'],
+              ),
+              // infoWindow: InfoWindow(
+              //   title: mrk['name'],
+              //   snippet: mrk['address'],
+              // ),
+              icon: BitmapDescriptor.defaultMarker,
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return DetailDialog(
+                        val: prods[i],
+                      );
+                    });
+              }));
         });
       }
     });
@@ -576,28 +592,8 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     user();
-    // polylines = {};
     data = {'UserType': 'admin'};
-    // myPolylines = [];
     myPolygons = [];
-    // mypolylines[PolylineId('myPolly')] = Polyline(
-    //   polylineId: PolylineId('myPolly'),
-    //   color: Colors.red,
-    //   points: [
-    //     LatLng(-1.3658498474205798, 36.71205283897359),
-    //     LatLng(-1.3660429115881176, 36.711999194793584)
-    //   ],
-    //   width: 3,
-    // );
-    // mypolygons[PolygonId('myPolly')] = Polygon(
-    //   polygonId: PolygonId('myPolly'),
-    //   color: Colors.red,
-    //   points: [
-    //     LatLng(-1.3658498474205798, 36.71205283897359),
-    //     LatLng(-1.3660429115881176, 36.711999194793584)
-    //   ],
-    //   width: 3,
-    // );
     extrasVisible = false;
     markerVisible = false;
     stopVisible = false;
@@ -615,6 +611,12 @@ class _MapViewState extends State<MapView> {
           data = value.data();
         });
       });
+    });
+
+    BitmapDescriptor.fromAssetImage(
+            ImageConfiguration(devicePixelRatio: 2.5), 'assets/info.png')
+        .then((onValue) {
+      pinLocationIcon = onValue;
     });
   }
 
