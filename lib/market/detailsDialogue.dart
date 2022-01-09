@@ -64,8 +64,8 @@ class _DetailDialogState extends State<DetailDialog> {
           : Alignment.topCenter,
       child: SizedBox(
         height: MediaQuery.of(context).viewInsets.bottom == 0
-            ? MediaQuery.of(context).size.height * 0.3
-            : MediaQuery.of(context).size.height * 0.3,
+            ? MediaQuery.of(context).size.height * 0.5
+            : MediaQuery.of(context).size.height * 0.5,
         child: FutureBuilder(
             future: detailDoc
                 .doc(widget.detailId)
